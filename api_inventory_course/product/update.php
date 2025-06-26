@@ -8,10 +8,11 @@ $name = $_POST['name'];
 $stock = $_POST['stock'];
 $unit = $_POST['unit'];
 $price = $_POST['price'];
+$id_kategori = $_POST['id_kategori'];
 
 $date = new DateTime();
 $updatedAt = $date->format('Y-m-d H:i:sP');
-// (code == newCode) && (code != oldCode)
+
 $sql_check_code = "SELECT * FROM tb_product WHERE code='$code' AND NOT code='$old_code'";
 $result_check_code = $connect->query($sql_check_code);
 if ($result_check_code->num_rows > 0) {
@@ -19,17 +20,18 @@ if ($result_check_code->num_rows > 0) {
         "success" => false,
         "message" => "code",
     ));
-}else{
+} else {
     $sql = "UPDATE tb_product SET
         code='$code',
         name='$name',
         stock='$stock',
         unit='$unit',
         price='$price',
+        id_kategori='$id_kategori',
         updated_at='$updatedAt'
         WHERE
         code='$old_code'
-        ";
+    ";
     $result = $connect->query($sql);
     if($result) {    
         echo json_encode(array("success"=>true));
@@ -37,4 +39,3 @@ if ($result_check_code->num_rows > 0) {
         echo json_encode(array("success"=>false));
     }
 }
-

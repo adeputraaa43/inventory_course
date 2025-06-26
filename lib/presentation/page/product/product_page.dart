@@ -6,8 +6,8 @@ import 'package:inventory_course/config/app_format.dart';
 import '../../../data/model/product.dart';
 import '../../controller/c_product.dart';
 import 'add_update_product_page.dart';
-
 import '../../../data/source/source_product.dart';
+import '../../../services/kategori_service.dart';
 
 class ProductPage extends StatefulWidget {
   const ProductPage({Key? key}) : super(key: key);
@@ -16,8 +16,14 @@ class ProductPage extends StatefulWidget {
   State<ProductPage> createState() => _ProductPageState();
 }
 
-class _ProductPageState extends State<ProductPage> {
+class _ProductPageState extends State<ProductPage>
+    with SingleTickerProviderStateMixin {
   final cProduct = Get.put(CProduct());
+
+  List<String> kategoriList = ['Semua'];
+  late TabController tabController;
+  bool isKategoriReady = false;
+
   deleteProduct(String code) async {
     bool yes = await DInfo.dialogConfirmation(
         context, 'Delete Product', 'You sure to delete product?');
@@ -36,12 +42,39 @@ class _ProductPageState extends State<ProductPage> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    fetchKategori().then((data) {
+      kategoriList.addAll(data.map((e) => e.name!).toList());
+      tabController = TabController(length: kategoriList.length, vsync: this);
+      isKategoriReady = true;
+
+      tabController.addListener(() {
+        if (tabController.indexIsChanging) return;
+        String selected = kategoriList[tabController.index];
+        cProduct.selectedKategori = selected == 'Semua' ? '' : selected;
+        cProduct.setList();
+      });
+
+      cProduct.setList();
+      setState(() {});
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    if (!isKategoriReady) return DView.loadingCircle();
+
     TextTheme textTheme = Theme.of(context).textTheme;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Product'),
         titleSpacing: 0,
+        bottom: TabBar(
+          controller: tabController,
+          isScrollable: true,
+          tabs: kategoriList.map((e) => Tab(text: e)).toList(),
+        ),
         actions: [
           IconButton(
             onPressed: () {
@@ -60,14 +93,12 @@ class _ProductPageState extends State<ProductPage> {
         if (cProduct.list.isEmpty) return DView.empty();
         return ListView.separated(
           itemCount: cProduct.list.length,
-          separatorBuilder: (context, index) {
-            return const Divider(
-              height: 1,
-              color: Colors.white60,
-              indent: 16,
-              endIndent: 16,
-            );
-          },
+          separatorBuilder: (context, index) => const Divider(
+            height: 1,
+            color: Colors.white60,
+            indent: 16,
+            endIndent: 16,
+          ),
           itemBuilder: (context, index) {
             Product product = cProduct.list[index];
             return Padding(
@@ -75,7 +106,7 @@ class _ProductPageState extends State<ProductPage> {
                 16,
                 index == 0 ? 16 : 8,
                 0,
-                index == 9 ? 16 : 0,
+                index == cProduct.list.length - 1 ? 16 : 0,
               ),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -98,10 +129,19 @@ class _ProductPageState extends State<ProductPage> {
                         DView.spaceHeight(4),
                         Text(
                           product.code ?? '',
-                          style: textTheme.subtitle2!.copyWith(
+                          style: textTheme.bodySmall!.copyWith(
                             color: Colors.white70,
                           ),
                         ),
+                        DView.spaceHeight(4),
+                        Text(
+                          product.kategori ?? '-',
+                          style: textTheme.bodySmall!.copyWith(
+                            color: Colors.amber.shade200,
+                            fontStyle: FontStyle.italic,
+                          ),
+                        ),
+                        DView.spaceHeight(4),
                         DView.spaceHeight(16),
                         Text(
                           'Rp ${AppFormat.currency(product.price ?? '0')}',
@@ -148,17 +188,29 @@ class _ProductPageState extends State<ProductPage> {
                           }
                         },
                         icon: const Icon(Icons.more_horiz),
-                        itemBuilder: (context) => [
-                          const PopupMenuItem(
+                        itemBuilder: (context) => const [
+                          PopupMenuItem(
                             value: 'update',
                             child: Text('Update'),
                           ),
-                          const PopupMenuItem(
+                          PopupMenuItem(
                             value: 'delete',
                             child: Text('Delete'),
                           ),
                         ],
                       ),
+                      DView.spaceHeight(4),
+                      if (product.createdAt != null)
+                        Padding(
+                          padding: const EdgeInsets.only(right: 16),
+                          child: Text(
+                            AppFormat.dateTime(product.createdAt!),
+                            style: textTheme.bodySmall!.copyWith(
+                              color: Colors.white54,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ),
                     ],
                   ),
                 ],

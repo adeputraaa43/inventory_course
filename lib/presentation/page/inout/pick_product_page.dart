@@ -27,18 +27,68 @@ class _PickProductPageState extends State<PickProductPage> {
     final controllerQuantity = TextEditingController();
     bool yes = await Get.dialog(
       AlertDialog(
-        title: const Text('Quantity'),
+        backgroundColor: Colors.grey[900],
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        title: const Text(
+          'Konfirmasi Produk',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            DInput(
-              controller: controllerQuantity,
-              hint: '50',
-              inputType: TextInputType.number,
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.grey[850],
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.white12),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    product.name ?? '',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text('Kode: ${product.code ?? '-'}'),
+                  Text('Kategori: ${product.kategori ?? '-'}'),
+                  Text('Harga: Rp ${product.price ?? '-'}'),
+                  Text('Stok: ${product.stock} ${product.unit ?? ''}'),
+                ],
+              ),
             ),
-            DView.spaceHeight(8),
-            const Text('Yes to confirm'),
+            const SizedBox(height: 16),
+            const Text('Jumlah Masuk/Keluar:', style: TextStyle(fontSize: 14)),
+            const SizedBox(height: 6),
+            TextField(
+              controller: controllerQuantity,
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(
+                hintText: 'Contoh: 50',
+                filled: true,
+                fillColor: Colors.grey[800],
+                contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.white24),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.purpleAccent),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              style: const TextStyle(color: Colors.white),
+            ),
+            const SizedBox(height: 12),
+            const Text('Tekan "Yes" untuk konfirmasi'),
           ],
         ),
         actions: [
@@ -60,6 +110,7 @@ class _PickProductPageState extends State<PickProductPage> {
       ),
       barrierDismissible: false,
     );
+
     if (yes) {
       int stock = await SourceProduct.stock(product.code!);
       Map<String, dynamic> data = {
@@ -69,6 +120,7 @@ class _PickProductPageState extends State<PickProductPage> {
         'stock': stock,
         'unit': product.unit,
         'quantity': controllerQuantity.text,
+        'category': product.kategori,
       };
       if (widget.type == 'IN') {
         Get.back(result: data);
@@ -114,7 +166,7 @@ class _PickProductPageState extends State<PickProductPage> {
                   16,
                   index == 0 ? 16 : 8,
                   0,
-                  index == 9 ? 16 : 0,
+                  index == cProduct.list.length - 1 ? 16 : 0,
                 ),
                 color: Colors.transparent,
                 child: Row(
@@ -138,11 +190,18 @@ class _PickProductPageState extends State<PickProductPage> {
                           DView.spaceHeight(4),
                           Text(
                             product.code ?? '',
-                            style: textTheme.subtitle2!.copyWith(
+                            style: textTheme.bodySmall!.copyWith(
                               color: Colors.white70,
                             ),
                           ),
-                          DView.spaceHeight(16),
+                          Text(
+                            product.kategori ?? '',
+                            style: textTheme.bodySmall!.copyWith(
+                              color: Color.fromARGB(255, 191, 223, 30),
+                              fontStyle: FontStyle.italic,
+                            ),
+                          ),
+                          DView.spaceHeight(12),
                           Text(
                             'Rp ${product.price ?? ''}',
                             style: textTheme.subtitle1!.copyWith(

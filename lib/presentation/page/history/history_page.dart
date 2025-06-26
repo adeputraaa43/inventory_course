@@ -2,8 +2,6 @@ import 'package:d_info/d_info.dart';
 import 'package:d_input/d_input.dart';
 import 'package:d_view/d_view.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/foundation/key.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:inventory_course/presentation/controller/c_user.dart';
@@ -11,6 +9,7 @@ import '../../../config/app_color.dart';
 
 import '../../../config/app_format.dart';
 import '../../../data/model/history.dart';
+import '../../../data/model/history_rekap.dart';
 import '../../../data/source/source_history.dart';
 import '../../controller/c_history.dart';
 import 'detail_history_page.dart';
@@ -123,6 +122,48 @@ class _HistoryPageState extends State<HistoryPage> {
         if (cHistory.list.isEmpty) return DView.empty();
         return ListView(
           children: [
+            buildRekapBulanan(),
+
+            // ✅ Tambahan: Total Barang Masuk & Keluar
+            Builder(builder: (context) {
+              double totalMasukKeluar = 0;
+              for (var h in cHistory.list) {
+                double total = double.tryParse(h.totalPrice ?? '0') ?? 0;
+                totalMasukKeluar += total;
+              }
+
+              return Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.white12,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.swap_vert, color: Colors.amber),
+                      const SizedBox(width: 8),
+                      const Text(
+                        'Total Barang Masuk & Keluar:',
+                        style: TextStyle(
+                            color: Colors.white, fontWeight: FontWeight.bold),
+                      ),
+                      const Spacer(),
+                      Text(
+                        'Rp ${AppFormat.currency(totalMasukKeluar.toString())}',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }),
+
             ...List.generate(cHistory.list.length, (index) {
               History history = cHistory.list[index];
               return Column(
@@ -179,6 +220,33 @@ class _HistoryPageState extends State<HistoryPage> {
     );
   }
 
+  Widget buildRekapBulanan() {
+    return GetBuilder<CHistory>(
+      builder: (_) {
+        if (cHistory.listRekap.isEmpty) return const SizedBox();
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Text(
+                'Rekap Penjualan per Bulan',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+            ),
+            ...cHistory.listRekap.map((e) {
+              return ListTile(
+                title: Text(AppFormat.bulan(e.bulan)),
+                trailing: Text('Rp ${AppFormat.currency(e.total.toString())}'),
+              );
+            }).toList(),
+            const Divider(thickness: 1),
+          ],
+        );
+      },
+    );
+  }
+
   Expanded search() {
     return Expanded(
       child: Container(
@@ -193,9 +261,7 @@ class _HistoryPageState extends State<HistoryPage> {
               firstDate: DateTime(2000),
               lastDate: DateTime(
                 DateTime.now().year,
-                DateTime.now()
-                    .add(const Duration(days: 30))
-                    .month, // next Month
+                DateTime.now().add(const Duration(days: 30)).month,
               ),
             );
             if (result != null) {

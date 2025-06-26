@@ -11,12 +11,27 @@ class CProduct extends GetxController {
 
   final RxList<Product> _list = <Product>[].obs;
   List<Product> get list => _list.value;
+
+  final RxString _selectedKategori = ''.obs;
+  String get selectedKategori => _selectedKategori.value;
+  set selectedKategori(String newData) {
+    _selectedKategori.value = newData;
+  }
+
   setList() async {
     loading = true;
-    _list.value = await SourceProduct.gets();
-    Future.delayed(const Duration(seconds: 1), () {
-      loading = false;
-    });
+    List<Product> result = await SourceProduct.gets();
+
+    if (selectedKategori != '') {
+      result = result
+          .where((e) =>
+              (e.kategori ?? '').toLowerCase() ==
+              selectedKategori.toLowerCase())
+          .toList();
+    }
+
+    _list.value = result;
+    loading = false;
   }
 
   @override

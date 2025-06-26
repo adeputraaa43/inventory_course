@@ -8,7 +8,25 @@ class CInOut extends GetxController {
   final RxList<History> _list = <History>[].obs;
   List<History> get list => _list.value;
   setList(List newList) {
-    _list.value = newList.map((e) => History.fromJson(e)).toList();
+    final List<History> histories =
+        newList.map((e) => History.fromJson(e)).toList();
+    _list.value = histories;
+
+    double totalMasuk = 0.0;
+    double totalKeluar = 0.0;
+
+    for (var h in histories) {
+      double total = double.tryParse(h.totalPrice ?? '0') ?? 0;
+      if (h.type == 'IN') {
+        totalMasuk += total;
+      } else if (h.type == 'OUT') {
+        totalKeluar += total;
+      }
+    }
+
+    _totalMasuk.value = totalMasuk;
+    _totalKeluar.value = totalKeluar;
+
     update();
   }
 
@@ -74,4 +92,8 @@ class CInOut extends GetxController {
   String get textDifferent => _textDifferent.value;
   final RxDouble _different = 0.0.obs;
   double get different => _different.value;
+  final RxDouble _totalMasuk = 0.0.obs;
+  double get totalMasuk => _totalMasuk.value;
+  final RxDouble _totalKeluar = 0.0.obs;
+  double get totalKeluar => _totalKeluar.value;
 }

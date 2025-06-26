@@ -170,6 +170,30 @@ class _SupplierPageState extends State<SupplierPage> {
                             const SizedBox(height: 4),
                             Row(
                               children: [
+                                const Icon(Icons.sell,
+                                    color: Colors.lightBlueAccent, size: 18),
+                                const SizedBox(width: 8),
+                                Text(
+                                  'Produk Terjual: ${supplier.produkTerjual ?? '-'}',
+                                  style: const TextStyle(color: Colors.white70),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 4),
+                            Row(
+                              children: [
+                                const Icon(Icons.inventory_2,
+                                    color: Colors.purpleAccent, size: 18),
+                                const SizedBox(width: 8),
+                                Text(
+                                  'Sisa Produk: ${supplier.sisaProduk ?? '-'}',
+                                  style: const TextStyle(color: Colors.white70),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 4),
+                            Row(
+                              children: [
                                 const Icon(Icons.calendar_today,
                                     color: Colors.cyan, size: 18),
                                 const SizedBox(width: 8),

@@ -5,6 +5,8 @@ class Supplier {
     this.namaProduk,
     this.noTelp,
     this.jumlahProduk,
+    this.produkTerjual,
+    this.sisaProduk,
     this.createdAt,
   });
 
@@ -13,6 +15,8 @@ class Supplier {
   String? namaProduk;
   String? noTelp;
   String? jumlahProduk;
+  String? produkTerjual;
+  String? sisaProduk;
   String? createdAt;
 
   factory Supplier.fromJson(Map<String, dynamic> json) => Supplier(
@@ -23,6 +27,8 @@ class Supplier {
         namaProduk: json["nama_produk"],
         noTelp: json["no_telp"],
         jumlahProduk: json["jumlah_produk"],
+        produkTerjual: json["produk_terjual"],
+        sisaProduk: json["sisa_produk"],
         createdAt: json["created_at"],
       );
 
@@ -32,6 +38,8 @@ class Supplier {
         "nama_produk": namaProduk,
         "no_telp": noTelp,
         "jumlah_produk": jumlahProduk,
+        "produk_terjual": produkTerjual,
+        "sisa_produk": sisaProduk,
         "created_at": createdAt,
       };
 }

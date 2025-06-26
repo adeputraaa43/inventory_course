@@ -10,4 +10,32 @@ class AppFormat {
     DateTime dateTime = DateTime.parse(date).toLocal();
     return DateFormat('EEE, d MMMM yyyy').format(dateTime);
   }
+
+  static String dateTime(String rawDateTime) {
+    try {
+      DateTime dt = DateTime.parse(rawDateTime).toLocal();
+      return DateFormat('dd MMM yyyy • HH:mm').format(dt);
+    } catch (e) {
+      return rawDateTime;
+    }
+  }
+
+  static String bulan(int bulan) {
+    List<String> namaBulan = [
+      '',
+      'Januari',
+      'Februari',
+      'Maret',
+      'April',
+      'Mei',
+      'Juni',
+      'Juli',
+      'Agustus',
+      'September',
+      'Oktober',
+      'November',
+      'Desember',
+    ];
+    return namaBulan[bulan];
+  }
 }

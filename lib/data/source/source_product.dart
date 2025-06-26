@@ -18,6 +18,7 @@ class SourceProduct {
   static Future<List<Product>> gets() async {
     String url = '${Api.product}/${Api.gets}';
     String? responseBody = await AppRequest.gets(url);
+    print('DEBUG: Response from $url => $responseBody');
     if (responseBody != null) {
       Map result = jsonDecode(responseBody);
       if (result['success']) {
@@ -37,15 +38,14 @@ class SourceProduct {
       'stock': product.stock.toString(),
       'unit': product.unit,
       'price': product.price,
+      'id_kategori': product.idKategori.toString(),
     });
     if (responseBody != null) {
       Map result = jsonDecode(responseBody);
-      // if false
       String message = result['message'] ?? '';
       if (message == 'code') {
         DInfo.toastError('Code already used');
       }
-      // return follow success Api
       return result['success'];
     }
     return false;
@@ -60,15 +60,14 @@ class SourceProduct {
       'stock': product.stock.toString(),
       'unit': product.unit,
       'price': product.price,
+      'id_kategori': product.idKategori.toString(),
     });
     if (responseBody != null) {
       Map result = jsonDecode(responseBody);
-      // if false
       String message = result['message'] ?? '';
       if (message == 'code') {
         DInfo.toastError('Code already used');
       }
-      // return follow success Api
       return result['success'];
     }
     return false;

@@ -7,6 +7,7 @@ $name = $_POST['name'];
 $stock = $_POST['stock'];
 $unit = $_POST['unit'];
 $price = $_POST['price'];
+$id_kategori = $_POST['id_kategori'];
 
 $date = new DateTime();
 $createdAt = $date->format('Y-m-d H:i:sP');
@@ -19,22 +20,25 @@ if ($result_check_code->num_rows > 0) {
         "success" => false,
         "message" => "code",
     ));
-}else{
+} else {
     $sql = "INSERT INTO tb_product SET
         code='$code',
         name='$name',        
         stock='$stock',
         unit='$unit',
         price='$price',
+        id_kategori='$id_kategori',
         created_at='$createdAt',
         updated_at='$updatedAt'
-        ";
+    ";
+    
     $result = $connect->query($sql);
-    if($result) {    
+    if($result) {
         echo json_encode(array("success"=>true));
     } else {
-        echo json_encode(array("success"=>false));
+        echo json_encode(array(
+            "success"=>false,
+            "message"=>$connect->error
+        ));
     }
 }
-
-

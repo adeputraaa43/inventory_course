@@ -1,8 +1,6 @@
 import 'package:d_chart/d_chart.dart';
 import 'package:d_view/d_view.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/foundation/key.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:get/get.dart';
 import 'package:inventory_course/presentation/page/inout/inout_history_page.dart';
 import '../../../config/app_color.dart';
@@ -10,7 +8,6 @@ import '../../../config/app_format.dart';
 import '../../../data/model/history.dart';
 import '../history/detail_history_page.dart';
 import 'add_inout_page.dart';
-
 import '../../controller/c_in_out.dart';
 
 class InOutPage extends StatefulWidget {
@@ -23,6 +20,7 @@ class InOutPage extends StatefulWidget {
 
 class _InOutPageState extends State<InOutPage> {
   final cInOut = Get.put(CInOut());
+
   @override
   void initState() {
     cInOut.getAnalysis(widget.type);
@@ -127,9 +125,7 @@ class _InOutPageState extends State<InOutPage> {
                               style: Theme.of(context)
                                   .textTheme
                                   .titleMedium!
-                                  .copyWith(
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                                  .copyWith(fontWeight: FontWeight.bold),
                             ),
                           ],
                         ),
@@ -147,9 +143,7 @@ class _InOutPageState extends State<InOutPage> {
                               style: Theme.of(context)
                                   .textTheme
                                   .titleMedium!
-                                  .copyWith(
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                                  .copyWith(fontWeight: FontWeight.bold),
                             ),
                           ],
                         ),
@@ -164,9 +158,8 @@ class _InOutPageState extends State<InOutPage> {
                                 .textTheme
                                 .bodyMedium!
                                 .copyWith(
-                                  color: Colors.white70,
-                                  fontWeight: FontWeight.w300,
-                                ),
+                                    color: Colors.white70,
+                                    fontWeight: FontWeight.w300),
                           );
                         }),
                         DView.spaceHeight(8),
@@ -192,6 +185,8 @@ class _InOutPageState extends State<InOutPage> {
               ),
             ),
           ),
+
+          // Chart bar mingguan
           GetBuilder<CInOut>(builder: (_) {
             return AspectRatio(
               aspectRatio: 16 / 9,
@@ -219,9 +214,57 @@ class _InOutPageState extends State<InOutPage> {
               ),
             );
           }),
-          DView.spaceHeight(),
+
+          // Total Masuk / Keluar
           Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Obx(() {
+              double total =
+                  widget.type == 'IN' ? cInOut.totalMasuk : cInOut.totalKeluar;
+
+              return Container(
+                padding: const EdgeInsets.all(16),
+                margin: const EdgeInsets.only(top: 12),
+                decoration: BoxDecoration(
+                  color: Colors.white12,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      widget.type == 'IN' ? Icons.download : Icons.upload,
+                      color:
+                          widget.type == 'IN' ? Colors.green : Colors.redAccent,
+                    ),
+                    const SizedBox(width: 12),
+                    Text(
+                      'Total ${widget.type == 'IN' ? 'Barang Masuk' : 'Barang Keluar'}:',
+                      style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                    ),
+                    const Spacer(),
+                    Text(
+                      'Rp ${AppFormat.currency(total.toString())}',
+                      style: Theme.of(context).textTheme.titleLarge!.copyWith(
+                            color: widget.type == 'IN'
+                                ? AppColor.historyIn
+                                : AppColor.historyOut,
+                            fontWeight: FontWeight.bold,
+                          ),
+                    ),
+                  ],
+                ),
+              );
+            }),
+          ),
+
+          DView.spaceHeight(16),
+
+          // List History
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Row(
               children: [
                 DView.textTitle('History ${widget.type}', color: Colors.white),
@@ -237,6 +280,7 @@ class _InOutPageState extends State<InOutPage> {
               ],
             ),
           ),
+
           GetBuilder<CInOut>(builder: (_) {
             if (cInOut.list.isEmpty) return DView.empty();
             return ListView.separated(
@@ -254,7 +298,8 @@ class _InOutPageState extends State<InOutPage> {
                 return ListTile(
                   onTap: () {
                     Get.to(() => DetailHistoryPage(
-                        idHistory: '${history.idHistory}'))?.then((value) {
+                          idHistory: '${history.idHistory}',
+                        ))?.then((value) {
                       if (value ?? false) {
                         cInOut.getAnalysis(widget.type);
                       }

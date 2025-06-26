@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import '../../data/model/history.dart';
+import '../../data/model/history_rekap.dart';
 import '../../data/source/source_history.dart';
 
 class CHistory extends GetxController {
@@ -14,6 +15,9 @@ class CHistory extends GetxController {
 
   final RxList<History> _list = <History>[].obs;
   List<History> get list => _list.value;
+
+  final RxList<HistoryRekap> listRekap = <HistoryRekap>[].obs;
+
   getList() async {
     _fetchData.value = true;
     update();
@@ -25,6 +29,12 @@ class CHistory extends GetxController {
     _page.value = page + 1;
 
     _fetchData.value = false;
+    update();
+  }
+
+  getRekapBulanan() async {
+    listRekap.value = await SourceHistory.getRekapPerBulan();
+    print('HASIL REKAP BULANAN: ${listRekap.length}');
     update();
   }
 
@@ -43,6 +53,7 @@ class CHistory extends GetxController {
   @override
   void onInit() {
     getList();
+    getRekapBulanan();
     super.onInit();
   }
 }

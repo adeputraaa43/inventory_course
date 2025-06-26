@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../config/app_color.dart';
 import '../../../data/model/supplier.dart';
-import 'add_supplier_page.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
@@ -19,6 +18,7 @@ class _AddSupplierPageState extends State<AddSupplierPage> {
   final controllerProduct = TextEditingController();
   final controllerTelp = TextEditingController();
   final controllerJumlah = TextEditingController();
+  final controllerTerjual = TextEditingController();
 
   @override
   void initState() {
@@ -28,6 +28,7 @@ class _AddSupplierPageState extends State<AddSupplierPage> {
       controllerProduct.text = widget.supplier!.namaProduk ?? '';
       controllerTelp.text = widget.supplier!.noTelp ?? '';
       controllerJumlah.text = widget.supplier!.jumlahProduk ?? '';
+      controllerTerjual.text = widget.supplier!.produkTerjual ?? '';
     }
   }
 
@@ -37,6 +38,7 @@ class _AddSupplierPageState extends State<AddSupplierPage> {
     controllerProduct.dispose();
     controllerTelp.dispose();
     controllerJumlah.dispose();
+    controllerTerjual.dispose();
     super.dispose();
   }
 
@@ -45,10 +47,28 @@ class _AddSupplierPageState extends State<AddSupplierPage> {
     String product = controllerProduct.text.trim();
     String telp = controllerTelp.text.trim();
     String jumlah = controllerJumlah.text.trim();
+    String terjual = controllerTerjual.text.trim();
 
     if (name.isEmpty || product.isEmpty || telp.isEmpty || jumlah.isEmpty) {
       Get.snackbar('Error', 'Semua field wajib diisi');
       return;
+    }
+
+    // Jika sedang edit, lakukan validasi jumlah >= terjual
+    if (widget.supplier != null) {
+      int jumlahInt = int.tryParse(jumlah) ?? 0;
+      int terjualInt = int.tryParse(terjual) ?? 0;
+
+      if (terjual.isEmpty) {
+        Get.snackbar('Error', 'Produk terjual wajib diisi');
+        return;
+      }
+
+      if (terjualInt > jumlahInt) {
+        Get.snackbar(
+            'Gagal', 'Produk terjual tidak boleh lebih dari jumlah produk');
+        return;
+      }
     }
 
     String url = widget.supplier == null
@@ -62,9 +82,9 @@ class _AddSupplierPageState extends State<AddSupplierPage> {
       "jumlah_produk": jumlah,
     };
 
-    // tambahkan id jika edit
     if (widget.supplier != null) {
       body["id_supplier"] = widget.supplier!.idSupplier?.toString() ?? '';
+      body["produk_terjual"] = terjual;
     }
 
     Get.defaultDialog(
@@ -89,7 +109,7 @@ class _AddSupplierPageState extends State<AddSupplierPage> {
                   widget.supplier == null
                       ? 'Data supplier ditambahkan'
                       : 'Data supplier diperbarui');
-              await Future.delayed(Duration(milliseconds: 500));
+              await Future.delayed(const Duration(milliseconds: 500));
               Get.back(result: true);
             } else {
               Get.snackbar('Gagal', data['message'] ?? 'Gagal memproses');
@@ -147,7 +167,22 @@ class _AddSupplierPageState extends State<AddSupplierPage> {
             ),
             keyboardType: TextInputType.number,
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 16),
+
+          // Hanya tampilkan field ini saat Edit
+          if (widget.supplier != null) ...[
+            TextField(
+              controller: controllerTerjual,
+              decoration: const InputDecoration(
+                labelText: 'Produk Terjual',
+                border: OutlineInputBorder(),
+              ),
+              keyboardType: TextInputType.number,
+            ),
+            const SizedBox(height: 16),
+            const SizedBox(height: 16),
+          ],
+
           ElevatedButton(
             onPressed: saveSupplier,
             style: ElevatedButton.styleFrom(

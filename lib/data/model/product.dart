@@ -7,6 +7,8 @@ class Product {
     this.price,
     this.createdAt,
     this.updatedAt,
+    this.idKategori,
+    this.kategori,
   });
 
   String? code;
@@ -16,6 +18,8 @@ class Product {
   String? price;
   String? createdAt;
   String? updatedAt;
+  String? idKategori;
+  String? kategori;
 
   factory Product.fromJson(Map<String, dynamic> json) => Product(
         code: json["code"],
@@ -26,6 +30,8 @@ class Product {
         price: json["price"],
         createdAt: json["created_at"],
         updatedAt: json["updated_at"],
+        idKategori: json["id_kategori"],
+        kategori: json["kategori"],
       );
 
   Map<String, dynamic> toJson() => {
@@ -36,5 +42,7 @@ class Product {
         "price": price,
         "created_at": createdAt,
         "updated_at": updatedAt,
+        "id_kategori": idKategori,
+        "kategori": kategori,
       };
 }
