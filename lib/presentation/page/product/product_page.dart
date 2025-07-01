@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:inventory_course/config/app_format.dart';
 import '../../../data/model/product.dart';
 import '../../controller/c_product.dart';
+import '../../controller/c_user.dart';
 import 'add_update_product_page.dart';
 import '../../../data/source/source_product.dart';
 import '../../../services/kategori_service.dart';
@@ -19,6 +20,7 @@ class ProductPage extends StatefulWidget {
 class _ProductPageState extends State<ProductPage>
     with SingleTickerProviderStateMixin {
   final cProduct = Get.put(CProduct());
+  final cUser = Get.put(CUser());
 
   List<String> kategoriList = ['Semua'];
   late TabController tabController;
@@ -63,9 +65,11 @@ class _ProductPageState extends State<ProductPage>
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    TextTheme textTheme = Theme.of(context).textTheme;
+
     if (!isKategoriReady) return DView.loadingCircle();
 
-    TextTheme textTheme = Theme.of(context).textTheme;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Product'),
@@ -76,16 +80,17 @@ class _ProductPageState extends State<ProductPage>
           tabs: kategoriList.map((e) => Tab(text: e)).toList(),
         ),
         actions: [
-          IconButton(
-            onPressed: () {
-              Get.to(() => const AddUpdateProductPage())!.then((value) {
-                if (value ?? false) {
-                  cProduct.setList();
-                }
-              });
-            },
-            icon: const Icon(Icons.add),
-          ),
+          if (cUser.data.level == 'Admin')
+            IconButton(
+              onPressed: () {
+                Get.to(() => const AddUpdateProductPage())!.then((value) {
+                  if (value ?? false) {
+                    cProduct.setList();
+                  }
+                });
+              },
+              icon: const Icon(Icons.add),
+            ),
         ],
       ),
       body: Obx(() {
@@ -93,9 +98,9 @@ class _ProductPageState extends State<ProductPage>
         if (cProduct.list.isEmpty) return DView.empty();
         return ListView.separated(
           itemCount: cProduct.list.length,
-          separatorBuilder: (context, index) => const Divider(
+          separatorBuilder: (context, index) => Divider(
             height: 1,
-            color: Colors.white60,
+            color: isDark ? Colors.white60 : Colors.black26,
             indent: 16,
             endIndent: 16,
           ),
@@ -130,18 +135,19 @@ class _ProductPageState extends State<ProductPage>
                         Text(
                           product.code ?? '',
                           style: textTheme.bodySmall!.copyWith(
-                            color: Colors.white70,
+                            color: isDark ? Colors.white70 : Colors.black54,
                           ),
                         ),
                         DView.spaceHeight(4),
                         Text(
                           product.kategori ?? '-',
                           style: textTheme.bodySmall!.copyWith(
-                            color: Colors.amber.shade200,
+                            color: isDark
+                                ? Colors.amber.shade200
+                                : Colors.orange.shade700,
                             fontStyle: FontStyle.italic,
                           ),
                         ),
-                        DView.spaceHeight(4),
                         DView.spaceHeight(16),
                         Text(
                           'Rp ${AppFormat.currency(product.price ?? '0')}',
@@ -171,7 +177,7 @@ class _ProductPageState extends State<ProductPage>
                         child: Text(
                           product.unit ?? '',
                           style: textTheme.subtitle2!.copyWith(
-                            color: Colors.white70,
+                            color: isDark ? Colors.white70 : Colors.black54,
                           ),
                         ),
                       ),
@@ -183,21 +189,28 @@ class _ProductPageState extends State<ProductPage>
                                 .then((value) {
                               if (value ?? false) cProduct.setList();
                             });
-                          } else {
+                          } else if (value == 'delete') {
                             deleteProduct(product.code!);
                           }
                         },
                         icon: const Icon(Icons.more_horiz),
-                        itemBuilder: (context) => const [
-                          PopupMenuItem(
-                            value: 'update',
-                            child: Text('Update'),
-                          ),
-                          PopupMenuItem(
-                            value: 'delete',
-                            child: Text('Delete'),
-                          ),
-                        ],
+                        itemBuilder: (context) {
+                          final List<PopupMenuEntry<String>> items = [
+                            const PopupMenuItem(
+                              value: 'update',
+                              child: Text('Update'),
+                            ),
+                          ];
+                          if (cUser.data.level == 'Admin') {
+                            items.add(
+                              const PopupMenuItem(
+                                value: 'delete',
+                                child: Text('Delete'),
+                              ),
+                            );
+                          }
+                          return items;
+                        },
                       ),
                       DView.spaceHeight(4),
                       if (product.createdAt != null)
@@ -206,7 +219,7 @@ class _ProductPageState extends State<ProductPage>
                           child: Text(
                             AppFormat.dateTime(product.createdAt!),
                             style: textTheme.bodySmall!.copyWith(
-                              color: Colors.white54,
+                              color: isDark ? Colors.white54 : Colors.black54,
                               fontSize: 12,
                             ),
                           ),

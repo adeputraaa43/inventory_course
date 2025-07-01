@@ -77,7 +77,7 @@ class _SupplierPageState extends State<SupplierPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Berhasil dihapus')),
         );
-        await fetchAndSetSuppliers(); // refresh list
+        await fetchAndSetSuppliers();
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(data['message'] ?? 'Gagal menghapus')),
@@ -92,6 +92,9 @@ class _SupplierPageState extends State<SupplierPage> {
 
   @override
   Widget build(BuildContext context) {
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    final TextTheme textTheme = Theme.of(context).textTheme;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Supplier'),
@@ -106,7 +109,7 @@ class _SupplierPageState extends State<SupplierPage> {
                   itemBuilder: (context, index) {
                     final supplier = suppliers[index];
                     return Card(
-                      color: Colors.grey[900],
+                      color: colorScheme.surface,
                       margin: const EdgeInsets.only(bottom: 12),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
@@ -119,91 +122,49 @@ class _SupplierPageState extends State<SupplierPage> {
                           children: [
                             Text(
                               supplier.namaSupplier ?? '-',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 18,
+                              style: textTheme.titleMedium?.copyWith(
+                                color: colorScheme.onSurface,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
                             const SizedBox(height: 8),
-                            Row(
-                              children: [
-                                const Icon(Icons.shopping_bag,
-                                    color: Colors.orangeAccent, size: 18),
-                                const SizedBox(width: 8),
-                                Expanded(
-                                  child: Text(
-                                    'Produk: ${supplier.namaProduk ?? '-'}',
-                                    style:
-                                        const TextStyle(color: Colors.white70),
-                                  ),
-                                ),
-                              ],
+                            supplierInfoRow(
+                              Icons.shopping_bag,
+                              Colors.orangeAccent,
+                              'Produk: ${supplier.namaProduk ?? '-'}',
+                              colorScheme,
                             ),
-                            const SizedBox(height: 4),
-                            Row(
-                              children: [
-                                const Icon(Icons.phone,
-                                    color: Colors.greenAccent, size: 18),
-                                const SizedBox(width: 8),
-                                Expanded(
-                                  child: Text(
-                                    'No. Telepon: ${supplier.noTelp ?? '-'}',
-                                    style:
-                                        const TextStyle(color: Colors.white70),
-                                  ),
-                                ),
-                              ],
+                            supplierInfoRow(
+                              Icons.phone,
+                              Colors.greenAccent,
+                              'No. Telepon: ${supplier.noTelp ?? '-'}',
+                              colorScheme,
                             ),
-                            const SizedBox(height: 4),
-                            Row(
-                              children: [
-                                const Icon(Icons.confirmation_number,
-                                    color: Colors.amberAccent, size: 18),
-                                const SizedBox(width: 8),
-                                Text(
-                                  'Jumlah Produk: ${supplier.jumlahProduk ?? '-'}',
-                                  style: const TextStyle(color: Colors.white70),
-                                ),
-                              ],
+                            supplierInfoRow(
+                              Icons.confirmation_number,
+                              Colors.amberAccent,
+                              'Jumlah Produk: ${supplier.jumlahProduk ?? '-'}',
+                              colorScheme,
                             ),
-                            const SizedBox(height: 4),
-                            Row(
-                              children: [
-                                const Icon(Icons.sell,
-                                    color: Colors.lightBlueAccent, size: 18),
-                                const SizedBox(width: 8),
-                                Text(
-                                  'Produk Terjual: ${supplier.produkTerjual ?? '-'}',
-                                  style: const TextStyle(color: Colors.white70),
-                                ),
-                              ],
+                            supplierInfoRow(
+                              Icons.sell,
+                              Colors.lightBlueAccent,
+                              'Produk Terjual: ${supplier.produkTerjual ?? '-'}',
+                              colorScheme,
                             ),
-                            const SizedBox(height: 4),
-                            Row(
-                              children: [
-                                const Icon(Icons.inventory_2,
-                                    color: Colors.purpleAccent, size: 18),
-                                const SizedBox(width: 8),
-                                Text(
-                                  'Sisa Produk: ${supplier.sisaProduk ?? '-'}',
-                                  style: const TextStyle(color: Colors.white70),
-                                ),
-                              ],
+                            supplierInfoRow(
+                              Icons.inventory_2,
+                              Colors.purpleAccent,
+                              'Sisa Produk: ${supplier.sisaProduk ?? '-'}',
+                              colorScheme,
                             ),
-                            const SizedBox(height: 4),
-                            Row(
-                              children: [
-                                const Icon(Icons.calendar_today,
-                                    color: Colors.cyan, size: 18),
-                                const SizedBox(width: 8),
-                                Text(
-                                  'Tanggal: ${supplier.createdAt ?? '-'}',
-                                  style: const TextStyle(color: Colors.white70),
-                                ),
-                              ],
+                            supplierInfoRow(
+                              Icons.calendar_today,
+                              Colors.cyan,
+                              'Tanggal: ${supplier.createdAt ?? '-'}',
+                              colorScheme,
                             ),
-                            const Divider(height: 20, color: Colors.white12),
+                            const Divider(height: 20),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
@@ -213,8 +174,9 @@ class _SupplierPageState extends State<SupplierPage> {
                                   onPressed: () async {
                                     final result = await Get.to(() =>
                                         AddSupplierPage(supplier: supplier));
-                                    if (result == true)
+                                    if (result == true) {
                                       await fetchAndSetSuppliers();
+                                    }
                                   },
                                 ),
                                 IconButton(
@@ -237,11 +199,36 @@ class _SupplierPageState extends State<SupplierPage> {
         onPressed: () async {
           final result = await Get.to(() => const AddSupplierPage());
           if (result == true) {
-            await fetchAndSetSuppliers(); // refresh list
+            await fetchAndSetSuppliers();
           }
         },
         backgroundColor: AppColor.primary,
         child: const Icon(Icons.add),
+      ),
+    );
+  }
+
+  Widget supplierInfoRow(
+    IconData icon,
+    Color iconColor,
+    String text,
+    ColorScheme colorScheme,
+  ) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4.0),
+      child: Row(
+        children: [
+          Icon(icon, color: iconColor, size: 18),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              text,
+              style: TextStyle(
+                color: colorScheme.onSurface.withOpacity(0.7),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

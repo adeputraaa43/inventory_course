@@ -7,12 +7,12 @@ import '../../config/app_color.dart';
 import '../../config/session.dart';
 import '../controller/c_dashboard.dart';
 import '../controller/c_supplier.dart';
-import 'login_page.dart';
-import 'product/product_page.dart';
-
+import '../controller/theme_controller.dart';
 import '../controller/c_user.dart';
 import 'history/history_page.dart';
 import 'inout/inout_page.dart';
+import 'login_page.dart';
+import 'product/product_page.dart';
 import 'supplier/supplier_page.dart';
 
 class DashboardPage extends StatefulWidget {
@@ -26,6 +26,7 @@ class _DashboardPageState extends State<DashboardPage> {
   final cUser = Get.put(CUser());
   final cDashboard = Get.put(CDashboard());
   final cSupplier = Get.put(CSupplier());
+  final themeController = Get.find<ThemeController>();
 
   logout() async {
     bool yes = await DInfo.dialogConfirmation(
@@ -42,10 +43,20 @@ class _DashboardPageState extends State<DashboardPage> {
   @override
   Widget build(BuildContext context) {
     TextTheme textTheme = Theme.of(context).textTheme;
+    ColorScheme colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Dashboard'),
         actions: [
+          Obx(() => IconButton(
+                onPressed: () => themeController.toggleTheme(),
+                icon: Icon(
+                  themeController.isDark.value
+                      ? Icons.light_mode
+                      : Icons.dark_mode,
+                ),
+              )),
           IconButton(
             onPressed: () => logout(),
             icon: const Icon(Icons.logout),
@@ -54,7 +65,7 @@ class _DashboardPageState extends State<DashboardPage> {
       ),
       body: ListView(
         children: [
-          profileCard(textTheme),
+          profileCard(textTheme, colorScheme),
           Padding(
             padding: const EdgeInsets.all(16),
             child: DView.textTitle('Menu'),
@@ -70,20 +81,20 @@ class _DashboardPageState extends State<DashboardPage> {
               mainAxisSpacing: 16,
             ),
             children: [
-              menuProduct(textTheme),
-              menuHistory(textTheme),
-              menuIn(textTheme),
-              menuOut(textTheme),
+              menuProduct(textTheme, colorScheme),
+              menuHistory(textTheme, colorScheme),
+              menuIn(textTheme, colorScheme),
+              menuOut(textTheme, colorScheme),
               Obx(() {
                 if (cUser.data.level == 'Admin') {
-                  return menuEmployee(textTheme);
+                  return menuEmployee(textTheme, colorScheme);
                 } else {
                   return const SizedBox();
                 }
               }),
               Obx(() {
                 if (cUser.data.level == 'Admin') {
-                  return menuSupplier(textTheme);
+                  return menuSupplier(textTheme, colorScheme);
                 } else {
                   return const SizedBox();
                 }
@@ -95,99 +106,59 @@ class _DashboardPageState extends State<DashboardPage> {
     );
   }
 
-  Widget menuProduct(TextTheme textTheme) {
+  Widget menuProduct(TextTheme textTheme, ColorScheme colorScheme) {
     return GestureDetector(
       onTap: () {
         Get.to(() => const ProductPage())
             ?.then((value) => cDashboard.setProduct());
       },
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: AppColor.input,
-          borderRadius: BorderRadius.circular(16),
+      child: menuCard(
+        title: 'Produk',
+        value: Obx(() => Text(
+              cDashboard.product.toString(),
+              style:
+                  textTheme.headline4?.copyWith(color: colorScheme.onSurface),
+            )),
+        suffix: Text(
+          'Item',
+          style: textTheme.bodyMedium?.copyWith(
+            color: colorScheme.onSurface.withOpacity(0.6),
+            fontSize: 18,
+          ),
         ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Produk',
-              style: textTheme.titleLarge,
-            ),
-            Row(
-              children: [
-                Obx(() {
-                  return Text(
-                    cDashboard.product.toString(),
-                    style: textTheme.headline4!.copyWith(
-                      color: Colors.white,
-                    ),
-                  );
-                }),
-                DView.spaceWidth(8),
-                const Text(
-                  'Item',
-                  style: TextStyle(
-                    color: Colors.white54,
-                    fontSize: 18,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
+        textTheme: textTheme,
+        colorScheme: colorScheme,
       ),
     );
   }
 
-  Widget menuHistory(TextTheme textTheme) {
+  Widget menuHistory(TextTheme textTheme, ColorScheme colorScheme) {
     return GestureDetector(
       onTap: () {
         Get.to(() => const HistoryPage())
             ?.then((value) => cDashboard.setHistory());
       },
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: AppColor.input,
-          borderRadius: BorderRadius.circular(16),
+      child: menuCard(
+        title: 'Riwayat',
+        value: Obx(() => Text(
+              cDashboard.history.toString(),
+              style:
+                  textTheme.headline4?.copyWith(color: colorScheme.onSurface),
+            )),
+        suffix: Text(
+          'Act',
+          style: textTheme.bodyMedium?.copyWith(
+            color: colorScheme.onSurface.withOpacity(0.6),
+            fontSize: 18,
+          ),
         ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Riwayat',
-              style: textTheme.titleLarge,
-            ),
-            Row(
-              children: [
-                Obx(() {
-                  return Text(
-                    cDashboard.history.toString(),
-                    style: textTheme.headline4!.copyWith(
-                      color: Colors.white,
-                    ),
-                  );
-                }),
-                DView.spaceWidth(8),
-                const Text(
-                  'Act',
-                  style: TextStyle(
-                    color: Colors.white54,
-                    fontSize: 18,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
+        textTheme: textTheme,
+        colorScheme: colorScheme,
       ),
     );
   }
 
-  Widget menuIn(TextTheme textTheme) {
+  Widget menuIn(TextTheme textTheme, ColorScheme colorScheme) {
     return GestureDetector(
       onTap: () {
         Get.to(() => const InOutPage(type: 'IN'))?.then((value) {
@@ -195,47 +166,27 @@ class _DashboardPageState extends State<DashboardPage> {
           cDashboard.setHistory();
         });
       },
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: AppColor.input,
-          borderRadius: BorderRadius.circular(16),
+      child: menuCard(
+        title: 'Masuk',
+        value: Obx(() => Text(
+              cDashboard.ins.toString(),
+              style:
+                  textTheme.headline4?.copyWith(color: colorScheme.onSurface),
+            )),
+        suffix: Text(
+          'Item',
+          style: textTheme.bodyMedium?.copyWith(
+            color: colorScheme.onSurface.withOpacity(0.6),
+            fontSize: 18,
+          ),
         ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Masuk',
-              style: textTheme.titleLarge,
-            ),
-            Row(
-              children: [
-                Obx(() {
-                  return Text(
-                    cDashboard.ins.toString(),
-                    style: textTheme.headline4!.copyWith(
-                      color: Colors.white,
-                    ),
-                  );
-                }),
-                DView.spaceWidth(8),
-                const Text(
-                  'Item',
-                  style: TextStyle(
-                    color: Colors.white54,
-                    fontSize: 18,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
+        textTheme: textTheme,
+        colorScheme: colorScheme,
       ),
     );
   }
 
-  Widget menuOut(TextTheme textTheme) {
+  Widget menuOut(TextTheme textTheme, ColorScheme colorScheme) {
     return GestureDetector(
       onTap: () {
         Get.to(() => const InOutPage(type: 'OUT'))?.then((value) {
@@ -243,148 +194,122 @@ class _DashboardPageState extends State<DashboardPage> {
           cDashboard.setHistory();
         });
       },
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: AppColor.input,
-          borderRadius: BorderRadius.circular(16),
+      child: menuCard(
+        title: 'Keluar',
+        value: Obx(() => Text(
+              cDashboard.outs.toString(),
+              style:
+                  textTheme.headline4?.copyWith(color: colorScheme.onSurface),
+            )),
+        suffix: Text(
+          'Item',
+          style: textTheme.bodyMedium?.copyWith(
+            color: colorScheme.onSurface.withOpacity(0.6),
+            fontSize: 18,
+          ),
         ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Keluar',
-              style: textTheme.titleLarge,
-            ),
-            Row(
-              children: [
-                Obx(() {
-                  return Text(
-                    cDashboard.outs.toString(),
-                    style: textTheme.headline4!.copyWith(
-                      color: Colors.white,
-                    ),
-                  );
-                }),
-                DView.spaceWidth(8),
-                const Text(
-                  'Item',
-                  style: TextStyle(
-                    color: Colors.white54,
-                    fontSize: 18,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
+        textTheme: textTheme,
+        colorScheme: colorScheme,
       ),
     );
   }
 
-  Widget menuEmployee(TextTheme textTheme) {
+  Widget menuEmployee(TextTheme textTheme, ColorScheme colorScheme) {
     return GestureDetector(
       onTap: () {
         Get.to(() => const EmployeePage())?.then((value) {
           cDashboard.setEmployee();
         });
       },
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: AppColor.input,
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Karyawan',
-              style: textTheme.titleLarge,
-            ),
-            Obx(() {
-              return Text(
-                cDashboard.employee.toString(),
-                style: textTheme.headline4!.copyWith(
-                  color: Colors.white,
-                ),
-              );
-            }),
-          ],
-        ),
+      child: menuCard(
+        title: 'Karyawan',
+        value: Obx(() => Text(
+              cDashboard.employee.toString(),
+              style:
+                  textTheme.headline4?.copyWith(color: colorScheme.onSurface),
+            )),
+        textTheme: textTheme,
+        colorScheme: colorScheme,
       ),
     );
   }
 
-  Widget menuSupplier(TextTheme textTheme) {
+  Widget menuSupplier(TextTheme textTheme, ColorScheme colorScheme) {
     return GestureDetector(
       onTap: () {
         Get.to(() => const SupplierPage())?.then((value) {
-          cSupplier.setList(); // refresh data saat kembali
+          cSupplier.setList();
         });
       },
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: AppColor.input,
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Supplier',
-              style: textTheme.titleLarge,
-            ),
-            Obx(() {
-              return Text(
-                cSupplier.list.length.toString(),
-                style: const TextStyle(
-                  fontSize: 32,
-                  color: Colors.white,
-                ),
-              );
-            }),
-          ],
-        ),
+      child: menuCard(
+        title: 'Supplier',
+        value: Obx(() => Text(
+              cSupplier.list.length.toString(),
+              style:
+                  textTheme.headline4?.copyWith(color: colorScheme.onSurface),
+            )),
+        textTheme: textTheme,
+        colorScheme: colorScheme,
       ),
     );
   }
 
-  Container profileCard(TextTheme textTheme) {
+  Widget menuCard({
+    required String title,
+    required Widget value,
+    Widget? suffix,
+    required TextTheme textTheme,
+    required ColorScheme colorScheme,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: colorScheme.surface,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title,
+              style:
+                  textTheme.titleLarge?.copyWith(color: colorScheme.onSurface)),
+          Row(
+            children: [
+              value,
+              if (suffix != null) ...[
+                DView.spaceWidth(8),
+                suffix,
+              ]
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget profileCard(TextTheme textTheme, ColorScheme colorScheme) {
     return Container(
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColor.primary,
+        color: colorScheme.primary,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Obx(() {
-            return Text(
-              cUser.data.name ?? '',
-              style: textTheme.titleMedium,
-            );
-          }),
+          Obx(() => Text(cUser.data.name ?? '',
+              style: textTheme.titleMedium
+                  ?.copyWith(color: colorScheme.onPrimary))),
           DView.spaceHeight(4),
-          Obx(() {
-            return Text(
-              cUser.data.email ?? '',
-              style: textTheme.bodyMedium,
-            );
-          }),
+          Obx(() => Text(cUser.data.email ?? '',
+              style: textTheme.bodyMedium
+                  ?.copyWith(color: colorScheme.onPrimary))),
           DView.spaceHeight(8),
-          Obx(() {
-            return Text(
-              '(${cUser.data.level})',
-              style: textTheme.caption,
-            );
-          }),
+          Obx(() => Text('(${cUser.data.level})',
+              style:
+                  textTheme.bodySmall?.copyWith(color: colorScheme.onPrimary))),
         ],
       ),
     );

@@ -9,7 +9,6 @@ import '../../../data/model/product.dart';
 import '../../../data/source/source_inout.dart';
 import '../../controller/c_product.dart';
 import '../product/add_update_product_page.dart';
-
 import '../../../data/source/source_product.dart';
 
 class PickProductPage extends StatefulWidget {
@@ -25,15 +24,20 @@ class _PickProductPageState extends State<PickProductPage> {
 
   pick(Product product) async {
     final controllerQuantity = TextEditingController();
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     bool yes = await Get.dialog(
       AlertDialog(
-        backgroundColor: Colors.grey[900],
+        backgroundColor: isDark ? Colors.grey[900] : Colors.white,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
         ),
-        title: const Text(
+        title: Text(
           'Konfirmasi Produk',
-          style: TextStyle(fontWeight: FontWeight.bold),
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: isDark ? Colors.white : Colors.black,
+          ),
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -43,30 +47,41 @@ class _PickProductPageState extends State<PickProductPage> {
               width: double.infinity,
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.grey[850],
+                color: isDark ? Colors.grey[850] : Colors.grey[200],
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.white12),
+                border: Border.all(color: Colors.black12),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     product.name ?? '',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
+                      color: isDark ? Colors.white : Colors.black,
                     ),
                   ),
                   const SizedBox(height: 6),
-                  Text('Kode: ${product.code ?? '-'}'),
-                  Text('Kategori: ${product.kategori ?? '-'}'),
-                  Text('Harga: Rp ${product.price ?? '-'}'),
-                  Text('Stok: ${product.stock} ${product.unit ?? ''}'),
+                  Text('Kode: ${product.code ?? '-'}',
+                      style: TextStyle(
+                          color: isDark ? Colors.white70 : Colors.black87)),
+                  Text('Kategori: ${product.kategori ?? '-'}',
+                      style: TextStyle(
+                          color: isDark ? Colors.white70 : Colors.black87)),
+                  Text('Harga: Rp ${product.price ?? '-'}',
+                      style: TextStyle(
+                          color: isDark ? Colors.white70 : Colors.black87)),
+                  Text('Stok: ${product.stock} ${product.unit ?? ''}',
+                      style: TextStyle(
+                          color: isDark ? Colors.white70 : Colors.black87)),
                 ],
               ),
             ),
             const SizedBox(height: 16),
-            const Text('Jumlah Masuk/Keluar:', style: TextStyle(fontSize: 14)),
+            Text('Jumlah Masuk/Keluar:',
+                style: TextStyle(
+                    fontSize: 14, color: isDark ? Colors.white : Colors.black)),
             const SizedBox(height: 6),
             TextField(
               controller: controllerQuantity,
@@ -74,10 +89,10 @@ class _PickProductPageState extends State<PickProductPage> {
               decoration: InputDecoration(
                 hintText: 'Contoh: 50',
                 filled: true,
-                fillColor: Colors.grey[800],
+                fillColor: isDark ? Colors.grey[800] : Colors.grey[100],
                 contentPadding: const EdgeInsets.symmetric(horizontal: 12),
                 enabledBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.white24),
+                  borderSide: BorderSide(color: Colors.black26),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 focusedBorder: OutlineInputBorder(
@@ -85,16 +100,20 @@ class _PickProductPageState extends State<PickProductPage> {
                   borderRadius: BorderRadius.circular(8),
                 ),
               ),
-              style: const TextStyle(color: Colors.white),
+              style: TextStyle(color: isDark ? Colors.white : Colors.black87),
             ),
             const SizedBox(height: 12),
-            const Text('Tekan "Yes" untuk konfirmasi'),
+            Text(
+              'Tekan "Yes" untuk konfirmasi',
+              style: TextStyle(color: isDark ? Colors.white54 : Colors.black54),
+            ),
           ],
         ),
         actions: [
           TextButton(
             onPressed: () => Get.back(result: false),
-            child: const Text('No'),
+            child: Text('No',
+                style: TextStyle(color: isDark ? Colors.pink : Colors.pink)),
           ),
           TextButton(
             onPressed: () {
@@ -104,7 +123,9 @@ class _PickProductPageState extends State<PickProductPage> {
                 Get.back(result: true);
               }
             },
-            child: const Text('Yes'),
+            child: Text('Yes',
+                style:
+                    TextStyle(color: isDark ? Colors.cyanAccent : Colors.blue)),
           ),
         ],
       ),
@@ -136,6 +157,10 @@ class _PickProductPageState extends State<PickProductPage> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final kategoriColor =
+        isDark ? Colors.lightGreenAccent.shade400 : Colors.green.shade700;
+
     TextTheme textTheme = Theme.of(context).textTheme;
     return Scaffold(
       appBar: AppBar(
@@ -158,9 +183,7 @@ class _PickProductPageState extends State<PickProductPage> {
           itemBuilder: (context, index) {
             Product product = cProduct.list[index];
             return GestureDetector(
-              onTap: () {
-                pick(product);
-              },
+              onTap: () => pick(product),
               child: Container(
                 padding: EdgeInsets.fromLTRB(
                   16,
@@ -191,13 +214,13 @@ class _PickProductPageState extends State<PickProductPage> {
                           Text(
                             product.code ?? '',
                             style: textTheme.bodySmall!.copyWith(
-                              color: Colors.white70,
+                              color: isDark ? Colors.white70 : Colors.black54,
                             ),
                           ),
                           Text(
-                            product.kategori ?? '',
+                            product.kategori ?? '-',
                             style: textTheme.bodySmall!.copyWith(
-                              color: Color.fromARGB(255, 191, 223, 30),
+                              color: kategoriColor,
                               fontStyle: FontStyle.italic,
                             ),
                           ),
@@ -229,8 +252,8 @@ class _PickProductPageState extends State<PickProductPage> {
                           padding: const EdgeInsets.only(right: 16),
                           child: Text(
                             product.unit ?? '',
-                            style: textTheme.subtitle2!.copyWith(
-                              color: Colors.white70,
+                            style: textTheme.bodySmall!.copyWith(
+                              color: Theme.of(context).colorScheme.onBackground,
                             ),
                           ),
                         ),

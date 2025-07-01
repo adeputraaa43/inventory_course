@@ -106,25 +106,22 @@ class _HistoryPageState extends State<HistoryPage> {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.red,
-        foregroundColor: Colors.white,
-        onPressed: () {
-          if (cuser.data.level == 'Admin') {
-            showInputDate();
-          } else {
-            DInfo.toastError('You are have no access');
-          }
-        },
-        child: const Icon(Icons.delete),
-      ),
+      floatingActionButton: cuser.data.level == 'Admin'
+          ? FloatingActionButton(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+              onPressed: showInputDate,
+              child: const Icon(Icons.delete),
+            )
+          : null,
       body: GetBuilder<CHistory>(builder: (_) {
         if (cHistory.list.isEmpty) return DView.empty();
+        final colorScheme = Theme.of(context).colorScheme;
+        final textTheme = Theme.of(context).textTheme;
+
         return ListView(
           children: [
             buildRekapBulanan(),
-
-            // ✅ Tambahan: Total Barang Masuk & Keluar
             Builder(builder: (context) {
               double totalMasukKeluar = 0;
               for (var h in cHistory.list) {
@@ -138,23 +135,25 @@ class _HistoryPageState extends State<HistoryPage> {
                 child: Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: Colors.white12,
+                    color: colorScheme.surfaceVariant.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Row(
                     children: [
-                      const Icon(Icons.swap_vert, color: Colors.amber),
+                      Icon(Icons.swap_vert, color: Colors.amber),
                       const SizedBox(width: 8),
-                      const Text(
+                      Text(
                         'Total Barang Masuk & Keluar:',
-                        style: TextStyle(
-                            color: Colors.white, fontWeight: FontWeight.bold),
+                        style: textTheme.bodyMedium?.copyWith(
+                          color: colorScheme.onSurface,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       const Spacer(),
                       Text(
                         'Rp ${AppFormat.currency(totalMasukKeluar.toString())}',
-                        style: const TextStyle(
-                          color: Colors.white,
+                        style: textTheme.bodyMedium?.copyWith(
+                          color: colorScheme.onSurface,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -163,7 +162,6 @@ class _HistoryPageState extends State<HistoryPage> {
                 ),
               );
             }),
-
             ...List.generate(cHistory.list.length, (index) {
               History history = cHistory.list[index];
               return Column(
@@ -248,6 +246,8 @@ class _HistoryPageState extends State<HistoryPage> {
   }
 
   Expanded search() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Expanded(
       child: Container(
         height: 70,
@@ -276,16 +276,25 @@ class _HistoryPageState extends State<HistoryPage> {
             contentPadding: const EdgeInsets.symmetric(horizontal: 16),
             isDense: true,
             filled: true,
-            fillColor: AppColor.input,
+            fillColor: isDark ? AppColor.input : Colors.white,
             hintText: 'Search...',
+            hintStyle: TextStyle(
+              color: isDark ? Colors.white70 : Colors.black45,
+            ),
             suffixIcon: IconButton(
               onPressed: () {
                 if (controllerSearch.text != '') {
                   cHistory.search(controllerSearch.text);
                 }
               },
-              icon: const Icon(Icons.search, color: Colors.white),
+              icon: Icon(
+                Icons.search,
+                color: isDark ? Colors.white : Colors.black54,
+              ),
             ),
+          ),
+          style: TextStyle(
+            color: isDark ? Colors.white : Colors.black,
           ),
         ),
       ),

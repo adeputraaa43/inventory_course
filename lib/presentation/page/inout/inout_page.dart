@@ -9,6 +9,7 @@ import '../../../data/model/history.dart';
 import '../history/detail_history_page.dart';
 import 'add_inout_page.dart';
 import '../../controller/c_in_out.dart';
+import '../../controller/c_user.dart';
 
 class InOutPage extends StatefulWidget {
   const InOutPage({Key? key, required this.type}) : super(key: key);
@@ -20,6 +21,7 @@ class InOutPage extends StatefulWidget {
 
 class _InOutPageState extends State<InOutPage> {
   final cInOut = Get.put(CInOut());
+  final cuser = Get.put(CUser());
 
   @override
   void initState() {
@@ -29,22 +31,31 @@ class _InOutPageState extends State<InOutPage> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final colorToday = widget.type == 'IN'
+        ? (isDark ? Colors.lightGreenAccent : Colors.green.shade700)
+        : (isDark ? Colors.redAccent.shade100 : Colors.red.shade700);
+    final colorYesterday = isDark ? Colors.deepPurpleAccent : Colors.deepPurple;
+
     return Scaffold(
       appBar: AppBar(
         titleSpacing: 0,
         title: Text(widget.type),
-        actions: [
-          IconButton(
-            onPressed: () {
-              Get.to(() => AddInOutPage(type: widget.type))?.then((value) {
-                if (value ?? false) {
-                  cInOut.getAnalysis(widget.type);
-                }
-              });
-            },
-            icon: const Icon(Icons.add),
-          ),
-        ],
+        actions: cuser.data.level == 'Admin'
+            ? [
+                IconButton(
+                  onPressed: () {
+                    Get.to(() => AddInOutPage(type: widget.type))
+                        ?.then((value) {
+                      if (value ?? false) {
+                        cInOut.getAnalysis(widget.type);
+                      }
+                    });
+                  },
+                  icon: const Icon(Icons.add),
+                ),
+              ]
+            : null,
       ),
       body: ListView(
         children: [
@@ -80,13 +91,11 @@ class _InOutPageState extends State<InOutPage> {
                             fillColor: (pieData, index) {
                               switch (pieData['domain']) {
                                 case 'Today':
-                                  return widget.type == 'IN'
-                                      ? AppColor.historyIn
-                                      : AppColor.historyOut;
+                                  return colorToday;
                                 case 'Yesterday':
-                                  return AppColor.primary;
+                                  return colorYesterday;
                                 default:
-                                  return Colors.white.withOpacity(0.3);
+                                  return Colors.grey.shade300;
                               }
                             },
                             labelColor: Colors.transparent,
@@ -112,39 +121,26 @@ class _InOutPageState extends State<InOutPage> {
                         DView.spaceHeight(20),
                         Row(
                           children: [
-                            Container(
-                              height: 20,
-                              width: 20,
-                              color: widget.type == 'IN'
-                                  ? AppColor.historyIn
-                                  : AppColor.historyOut,
-                            ),
+                            Container(height: 20, width: 20, color: colorToday),
                             DView.spaceWidth(8),
-                            Text(
-                              'Today',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleMedium!
-                                  .copyWith(fontWeight: FontWeight.bold),
-                            ),
+                            Text('Today',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleMedium!
+                                    .copyWith(fontWeight: FontWeight.bold)),
                           ],
                         ),
                         DView.spaceHeight(),
                         Row(
                           children: [
                             Container(
-                              height: 20,
-                              width: 20,
-                              color: AppColor.primary,
-                            ),
+                                height: 20, width: 20, color: colorYesterday),
                             DView.spaceWidth(8),
-                            Text(
-                              'Yesterday',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleMedium!
-                                  .copyWith(fontWeight: FontWeight.bold),
-                            ),
+                            Text('Yesterday',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleMedium!
+                                    .copyWith(fontWeight: FontWeight.bold)),
                           ],
                         ),
                         DView.spaceHeight(30),
@@ -158,8 +154,9 @@ class _InOutPageState extends State<InOutPage> {
                                 .textTheme
                                 .bodyMedium!
                                 .copyWith(
-                                    color: Colors.white70,
-                                    fontWeight: FontWeight.w300),
+                                  color: Colors.white70,
+                                  fontWeight: FontWeight.w300,
+                                ),
                           );
                         }),
                         DView.spaceHeight(8),
@@ -170,9 +167,7 @@ class _InOutPageState extends State<InOutPage> {
                                 .textTheme
                                 .titleMedium!
                                 .copyWith(
-                                  color: widget.type == 'IN'
-                                      ? AppColor.historyIn
-                                      : AppColor.historyOut,
+                                  color: colorToday,
                                   fontWeight: FontWeight.bold,
                                 ),
                           );
@@ -186,7 +181,7 @@ class _InOutPageState extends State<InOutPage> {
             ),
           ),
 
-          // Chart bar mingguan
+          // Bar chart
           GetBuilder<CInOut>(builder: (_) {
             return AspectRatio(
               aspectRatio: 16 / 9,
@@ -205,17 +200,15 @@ class _InOutPageState extends State<InOutPage> {
                 showDomainLine: false,
                 showMeasureLine: false,
                 showBarValue: false,
-                barColor: (barData, index, id) => widget.type == 'IN'
-                    ? AppColor.historyIn
-                    : AppColor.historyOut,
-                measureLabelColor: Colors.white,
-                domainLabelColor: Colors.white,
+                barColor: (barData, index, id) => colorToday,
+                measureLabelColor: isDark ? Colors.white : Colors.black54,
+                domainLabelColor: isDark ? Colors.white : Colors.black87,
                 axisLineColor: Colors.transparent,
               ),
             );
           }),
 
-          // Total Masuk / Keluar
+          // Total
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Obx(() {
@@ -241,16 +234,14 @@ class _InOutPageState extends State<InOutPage> {
                       'Total ${widget.type == 'IN' ? 'Barang Masuk' : 'Barang Keluar'}:',
                       style: Theme.of(context).textTheme.titleMedium!.copyWith(
                             fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                            color: isDark ? Colors.white : Colors.black,
                           ),
                     ),
                     const Spacer(),
                     Text(
                       'Rp ${AppFormat.currency(total.toString())}',
                       style: Theme.of(context).textTheme.titleLarge!.copyWith(
-                            color: widget.type == 'IN'
-                                ? AppColor.historyIn
-                                : AppColor.historyOut,
+                            color: colorToday,
                             fontWeight: FontWeight.bold,
                           ),
                     ),
@@ -267,7 +258,10 @@ class _InOutPageState extends State<InOutPage> {
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Row(
               children: [
-                DView.textTitle('History ${widget.type}', color: Colors.white),
+                DView.textTitle(
+                  'History ${widget.type}',
+                  color: isDark ? Colors.white : Colors.black,
+                ),
                 const Spacer(),
                 DView.textAction(
                   () {
@@ -298,8 +292,7 @@ class _InOutPageState extends State<InOutPage> {
                 return ListTile(
                   onTap: () {
                     Get.to(() => DetailHistoryPage(
-                          idHistory: '${history.idHistory}',
-                        ))?.then((value) {
+                        idHistory: '${history.idHistory}'))?.then((value) {
                       if (value ?? false) {
                         cInOut.getAnalysis(widget.type);
                       }
