@@ -2,7 +2,6 @@ import 'package:d_view/d_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import '../../../config/app_color.dart';
 
 import '../../../config/app_format.dart';
 import '../../../data/model/history.dart';
@@ -113,9 +112,7 @@ class _InOutHistoryPageState extends State<InOutHistoryPage> {
               firstDate: DateTime(2000),
               lastDate: DateTime(
                 DateTime.now().year,
-                DateTime.now()
-                    .add(const Duration(days: 30))
-                    .month, // next Month
+                DateTime.now().add(const Duration(days: 30)).month,
               ),
             );
             if (result != null) {
@@ -130,17 +127,22 @@ class _InOutHistoryPageState extends State<InOutHistoryPage> {
             contentPadding: const EdgeInsets.symmetric(horizontal: 16),
             isDense: true,
             filled: true,
-            fillColor: AppColor.input,
+            fillColor: Theme.of(context).cardColor,
             hintText: 'Search...',
+            hintStyle: TextStyle(color: Theme.of(context).hintColor),
             suffixIcon: IconButton(
               onPressed: () {
                 if (controllerSearch.text != '') {
                   cInOutHistory.search(controllerSearch.text, widget.type);
                 }
               },
-              icon: const Icon(Icons.search, color: Colors.white),
+              icon: Icon(
+                Icons.search,
+                color: Theme.of(context).iconTheme.color,
+              ),
             ),
           ),
+          style: TextStyle(color: Theme.of(context).textTheme.bodyLarge?.color),
         ),
       ),
     );

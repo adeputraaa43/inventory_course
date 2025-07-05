@@ -6,7 +6,6 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:inventory_course/presentation/controller/c_user.dart';
 import '../../../config/app_color.dart';
-
 import '../../../config/app_format.dart';
 import '../../../data/model/history.dart';
 import '../../../data/model/history_rekap.dart';
@@ -30,7 +29,7 @@ class _HistoryPageState extends State<HistoryPage> {
     final controller = TextEditingController();
     bool? dateExist = await Get.dialog(
       AlertDialog(
-        title: const Text('Pick Date Before Delete'),
+        title: const Text('Pilih Tanggal Yang Ingin Dihapus'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -46,27 +45,27 @@ class _HistoryPageState extends State<HistoryPage> {
                   controller.text = result.toIso8601String();
                 }
               },
-              child: const Text('Pick Date'),
+              child: const Text('Pilih Tanggal'),
             ),
             DView.spaceHeight(8),
             TextField(
               controller: controller,
               enabled: false,
-              decoration: const InputDecoration(hintText: 'Date'),
+              decoration: const InputDecoration(hintText: 'Masukkan Tanggal'),
             ),
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Get.back(), child: const Text('Cancel')),
+          TextButton(onPressed: () => Get.back(), child: const Text('Batal')),
           TextButton(
             onPressed: () {
               if (controller.text == '') {
-                DInfo.toastError('Input cannot be null');
+                DInfo.toastError('Tanggal tidak boleh kosong');
               } else {
                 Get.back(result: true);
               }
             },
-            child: const Text('Delete'),
+            child: const Text('Hapus'),
           ),
         ],
       ),
@@ -78,17 +77,18 @@ class _HistoryPageState extends State<HistoryPage> {
   }
 
   delete(String date) async {
-    bool yes = await DInfo.dialogConfirmation(
-        context, 'Delete History', 'You sure to delete history?');
+    bool yes = await DInfo.dialogConfirmation(context, 'Hapus Riwayat',
+        'Apakah kamu ingin menghapus seluruh riwayat dari tanggal yang dipilih?');
     if (yes) {
       bool success = await SourceHistory.deleteAllBeforeDate(date);
       if (success) {
-        DInfo.dialogSuccess('Success Delete History Before Date');
+        DInfo.dialogSuccess(
+            'Berhasil Hapus Seluruh Riwayat Dari Tanggal Yang Dipilih');
         DInfo.closeDialog(actionAfterClose: () {
           cHistory.refreshList();
         });
       } else {
-        DInfo.dialogError('Failed Delete History Before Date');
+        DInfo.dialogError('Gagal Hapus Seluruh Riwayat');
         DInfo.closeDialog();
       }
     }
@@ -101,7 +101,7 @@ class _HistoryPageState extends State<HistoryPage> {
         titleSpacing: 0,
         title: Row(
           children: [
-            const Text('History'),
+            const Text('Riwayat'),
             search(),
           ],
         ),
@@ -132,41 +132,55 @@ class _HistoryPageState extends State<HistoryPage> {
               return Padding(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                child: Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: colorScheme.surfaceVariant.withOpacity(0.2),
+                child: Card(
+                  elevation: 3,
+                  shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Row(
-                    children: [
-                      Icon(Icons.swap_vert, color: Colors.amber),
-                      const SizedBox(width: 8),
-                      Text(
-                        'Total Barang Masuk & Keluar:',
-                        style: textTheme.bodyMedium?.copyWith(
-                          color: colorScheme.onSurface,
-                          fontWeight: FontWeight.bold,
+                  color: Theme.of(context).brightness == Brightness.light
+                      ? Colors.grey[100]
+                      : colorScheme.surfaceVariant,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Row(
+                      children: [
+                        Icon(Icons.swap_vert, color: Colors.amber),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Total Barang Masuk & Keluar:',
+                          style: textTheme.bodyMedium?.copyWith(
+                            color: colorScheme.onSurface,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      ),
-                      const Spacer(),
-                      Text(
-                        'Rp ${AppFormat.currency(totalMasukKeluar.toString())}',
-                        style: textTheme.bodyMedium?.copyWith(
-                          color: colorScheme.onSurface,
-                          fontWeight: FontWeight.bold,
+                        const Spacer(),
+                        Text(
+                          'Rp ${AppFormat.currency(totalMasukKeluar.toString())}',
+                          style: textTheme.bodyMedium?.copyWith(
+                            color: colorScheme.onSurface,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               );
             }),
             ...List.generate(cHistory.list.length, (index) {
               History history = cHistory.list[index];
-              return Column(
-                children: [
-                  ListTile(
+              return Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                child: Card(
+                  elevation: 3,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  color: Theme.of(context).brightness == Brightness.light
+                      ? Colors.grey[100]
+                      : colorScheme.surfaceVariant,
+                  child: ListTile(
                     onTap: () {
                       Get.to(() => DetailHistoryPage(
                           idHistory: '${history.idHistory}'))?.then((value) {
@@ -175,31 +189,31 @@ class _HistoryPageState extends State<HistoryPage> {
                         }
                       });
                     },
-                    leading: history.type == 'IN'
-                        ? const Icon(Icons.south_west, color: Colors.green)
-                        : const Icon(Icons.north_east, color: Colors.red),
-                    horizontalTitleGap: 0,
-                    title: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          AppFormat.date(history.createdAt!),
-                          style: Theme.of(context).textTheme.subtitle2,
-                        ),
-                        Text(
-                          'Rp ${AppFormat.currency(history.totalPrice ?? '0')}',
-                          style: Theme.of(context).textTheme.titleLarge,
-                        ),
-                      ],
+                    leading: Icon(
+                      history.type == 'IN'
+                          ? Icons.arrow_downward_rounded
+                          : Icons.arrow_upward_rounded,
+                      color: history.type == 'IN' ? Colors.green : Colors.red,
+                    ),
+                    title: Text(
+                      AppFormat.date(history.createdAt!),
+                      style: textTheme.titleMedium,
+                    ),
+                    subtitle: Text(
+                      history.type == 'IN' ? 'Barang Masuk' : 'Barang Keluar',
+                      style: textTheme.bodySmall?.copyWith(
+                        color: colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                    trailing: Text(
+                      'Rp ${AppFormat.currency(history.totalPrice ?? '0')}',
+                      style: textTheme.titleLarge?.copyWith(
+                        color: colorScheme.onSurface,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
-                  const Divider(
-                    height: 1,
-                    color: Colors.white54,
-                    indent: 16,
-                    endIndent: 16,
-                  ),
-                ],
+                ),
               );
             }),
             if (cHistory.hasNext)
@@ -277,7 +291,7 @@ class _HistoryPageState extends State<HistoryPage> {
             isDense: true,
             filled: true,
             fillColor: isDark ? AppColor.input : Colors.white,
-            hintText: 'Search...',
+            hintText: 'Cari Tanggal...',
             hintStyle: TextStyle(
               color: isDark ? Colors.white70 : Colors.black45,
             ),

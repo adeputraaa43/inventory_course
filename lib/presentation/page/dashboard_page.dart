@@ -31,8 +31,8 @@ class _DashboardPageState extends State<DashboardPage> {
   logout() async {
     bool yes = await DInfo.dialogConfirmation(
       context,
-      'Logout',
-      'You sure to logout?',
+      'Keluar',
+      'Apakah Kamu Yakin ingin Keluar?',
     );
     if (yes) {
       Session.clearUser();
@@ -44,10 +44,11 @@ class _DashboardPageState extends State<DashboardPage> {
   Widget build(BuildContext context) {
     TextTheme textTheme = Theme.of(context).textTheme;
     ColorScheme colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Dashboard'),
+        title: const Text('Dasbor'),
         actions: [
           Obx(() => IconButton(
                 onPressed: () => themeController.toggleTheme(),
@@ -76,25 +77,25 @@ class _DashboardPageState extends State<DashboardPage> {
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
-              mainAxisExtent: 110,
+              mainAxisExtent: 130,
               crossAxisSpacing: 16,
               mainAxisSpacing: 16,
             ),
             children: [
-              menuProduct(textTheme, colorScheme),
-              menuHistory(textTheme, colorScheme),
-              menuIn(textTheme, colorScheme),
-              menuOut(textTheme, colorScheme),
+              menuProduct(textTheme, colorScheme, isDark),
+              menuHistory(textTheme, colorScheme, isDark),
+              menuIn(textTheme, colorScheme, isDark),
+              menuOut(textTheme, colorScheme, isDark),
               Obx(() {
                 if (cUser.data.level == 'Admin') {
-                  return menuEmployee(textTheme, colorScheme);
+                  return menuEmployee(textTheme, colorScheme, isDark);
                 } else {
                   return const SizedBox();
                 }
               }),
               Obx(() {
                 if (cUser.data.level == 'Admin') {
-                  return menuSupplier(textTheme, colorScheme);
+                  return menuSupplier(textTheme, colorScheme, isDark);
                 } else {
                   return const SizedBox();
                 }
@@ -106,13 +107,16 @@ class _DashboardPageState extends State<DashboardPage> {
     );
   }
 
-  Widget menuProduct(TextTheme textTheme, ColorScheme colorScheme) {
+  Widget menuProduct(
+      TextTheme textTheme, ColorScheme colorScheme, bool isDark) {
     return GestureDetector(
       onTap: () {
         Get.to(() => const ProductPage())
             ?.then((value) => cDashboard.setProduct());
       },
       child: menuCard(
+        icon: Icons.shopping_bag,
+        iconColor: Colors.blue,
         title: 'Produk',
         value: Obx(() => Text(
               cDashboard.product.toString(),
@@ -127,18 +131,21 @@ class _DashboardPageState extends State<DashboardPage> {
           ),
         ),
         textTheme: textTheme,
-        colorScheme: colorScheme,
+        isDark: isDark,
       ),
     );
   }
 
-  Widget menuHistory(TextTheme textTheme, ColorScheme colorScheme) {
+  Widget menuHistory(
+      TextTheme textTheme, ColorScheme colorScheme, bool isDark) {
     return GestureDetector(
       onTap: () {
         Get.to(() => const HistoryPage())
             ?.then((value) => cDashboard.setHistory());
       },
       child: menuCard(
+        icon: Icons.history,
+        iconColor: Colors.orange,
         title: 'Riwayat',
         value: Obx(() => Text(
               cDashboard.history.toString(),
@@ -146,19 +153,19 @@ class _DashboardPageState extends State<DashboardPage> {
                   textTheme.headline4?.copyWith(color: colorScheme.onSurface),
             )),
         suffix: Text(
-          'Act',
+          'Item',
           style: textTheme.bodyMedium?.copyWith(
             color: colorScheme.onSurface.withOpacity(0.6),
             fontSize: 18,
           ),
         ),
         textTheme: textTheme,
-        colorScheme: colorScheme,
+        isDark: isDark,
       ),
     );
   }
 
-  Widget menuIn(TextTheme textTheme, ColorScheme colorScheme) {
+  Widget menuIn(TextTheme textTheme, ColorScheme colorScheme, bool isDark) {
     return GestureDetector(
       onTap: () {
         Get.to(() => const InOutPage(type: 'IN'))?.then((value) {
@@ -167,6 +174,8 @@ class _DashboardPageState extends State<DashboardPage> {
         });
       },
       child: menuCard(
+        icon: Icons.arrow_downward,
+        iconColor: Colors.green,
         title: 'Masuk',
         value: Obx(() => Text(
               cDashboard.ins.toString(),
@@ -181,12 +190,12 @@ class _DashboardPageState extends State<DashboardPage> {
           ),
         ),
         textTheme: textTheme,
-        colorScheme: colorScheme,
+        isDark: isDark,
       ),
     );
   }
 
-  Widget menuOut(TextTheme textTheme, ColorScheme colorScheme) {
+  Widget menuOut(TextTheme textTheme, ColorScheme colorScheme, bool isDark) {
     return GestureDetector(
       onTap: () {
         Get.to(() => const InOutPage(type: 'OUT'))?.then((value) {
@@ -195,6 +204,8 @@ class _DashboardPageState extends State<DashboardPage> {
         });
       },
       child: menuCard(
+        icon: Icons.arrow_upward,
+        iconColor: Colors.red,
         title: 'Keluar',
         value: Obx(() => Text(
               cDashboard.outs.toString(),
@@ -209,12 +220,13 @@ class _DashboardPageState extends State<DashboardPage> {
           ),
         ),
         textTheme: textTheme,
-        colorScheme: colorScheme,
+        isDark: isDark,
       ),
     );
   }
 
-  Widget menuEmployee(TextTheme textTheme, ColorScheme colorScheme) {
+  Widget menuEmployee(
+      TextTheme textTheme, ColorScheme colorScheme, bool isDark) {
     return GestureDetector(
       onTap: () {
         Get.to(() => const EmployeePage())?.then((value) {
@@ -222,19 +234,29 @@ class _DashboardPageState extends State<DashboardPage> {
         });
       },
       child: menuCard(
+        icon: Icons.people,
+        iconColor: Colors.teal,
         title: 'Karyawan',
         value: Obx(() => Text(
               cDashboard.employee.toString(),
               style:
                   textTheme.headline4?.copyWith(color: colorScheme.onSurface),
             )),
+        suffix: Text(
+          'Item',
+          style: textTheme.bodyMedium?.copyWith(
+            color: colorScheme.onSurface.withOpacity(0.6),
+            fontSize: 18,
+          ),
+        ),
         textTheme: textTheme,
-        colorScheme: colorScheme,
+        isDark: isDark,
       ),
     );
   }
 
-  Widget menuSupplier(TextTheme textTheme, ColorScheme colorScheme) {
+  Widget menuSupplier(
+      TextTheme textTheme, ColorScheme colorScheme, bool isDark) {
     return GestureDetector(
       onTap: () {
         Get.to(() => const SupplierPage())?.then((value) {
@@ -242,45 +264,64 @@ class _DashboardPageState extends State<DashboardPage> {
         });
       },
       child: menuCard(
+        icon: Icons.local_shipping,
+        iconColor: Colors.indigo,
         title: 'Supplier',
         value: Obx(() => Text(
               cSupplier.list.length.toString(),
               style:
                   textTheme.headline4?.copyWith(color: colorScheme.onSurface),
             )),
+        suffix: Text(
+          'Item',
+          style: textTheme.bodyMedium?.copyWith(
+            color: colorScheme.onSurface.withOpacity(0.6),
+            fontSize: 18,
+          ),
+        ),
         textTheme: textTheme,
-        colorScheme: colorScheme,
+        isDark: isDark,
       ),
     );
   }
 
   Widget menuCard({
+    required IconData icon,
+    required Color iconColor,
     required String title,
     required Widget value,
     Widget? suffix,
     required TextTheme textTheme,
-    required ColorScheme colorScheme,
+    required bool isDark,
   }) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: colorScheme.surface,
+        color: isDark ? Colors.grey[850] : Colors.grey[200],
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title,
-              style:
-                  textTheme.titleLarge?.copyWith(color: colorScheme.onSurface)),
+          Icon(
+            icon,
+            size: 32,
+            color: iconColor,
+          ),
+          Text(
+            title,
+            style: textTheme.titleLarge?.copyWith(
+              color: isDark ? Colors.white : Colors.black87,
+            ),
+          ),
           Row(
             children: [
               value,
               if (suffix != null) ...[
                 DView.spaceWidth(8),
                 suffix,
-              ]
+              ],
             ],
           ),
         ],

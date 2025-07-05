@@ -56,7 +56,7 @@ class _AddUpdateProductPageState extends State<AddUpdateProductPage> {
 
   addProduct() async {
     bool yes = await DInfo.dialogConfirmation(
-        context, 'Add Product', 'You sure to add new product?');
+        context, 'Tambah Produk', 'Apakah Kamu Yakin Ingin Menambah Produk?');
     if (yes) {
       bool success = await SourceProduct.add(Product(
         code: controllerCode.text,
@@ -67,12 +67,12 @@ class _AddUpdateProductPageState extends State<AddUpdateProductPage> {
         idKategori: selectedKategori!.id!,
       ));
       if (success) {
-        DInfo.dialogSuccess('Success Add New Product');
+        DInfo.dialogSuccess('Produk Berhasil Ditambahkan');
         DInfo.closeDialog(actionAfterClose: () {
           Get.back(result: true);
         });
       } else {
-        DInfo.dialogError('Failed Add New Product');
+        DInfo.dialogError('Produk Gagal Ditambahkan');
         DInfo.closeDialog();
       }
     }
@@ -80,7 +80,7 @@ class _AddUpdateProductPageState extends State<AddUpdateProductPage> {
 
   updateProduct() async {
     bool yes = await DInfo.dialogConfirmation(
-        context, 'Update Product', 'You sure to update product?');
+        context, 'Ubah Produk', 'Apakah Kamu Yakin Ingin Mengubah Produk?');
     if (yes) {
       bool success = await SourceProduct.update(
         widget.product!.code!,
@@ -94,12 +94,12 @@ class _AddUpdateProductPageState extends State<AddUpdateProductPage> {
         ),
       );
       if (success) {
-        DInfo.dialogSuccess('Success Update Product');
+        DInfo.dialogSuccess('Produk Berhasil Diubah');
         DInfo.closeDialog(actionAfterClose: () {
           Get.back(result: true);
         });
       } else {
-        DInfo.dialogError('Failed Update Product');
+        DInfo.dialogError('Produk Gagal Diubah');
         DInfo.closeDialog();
       }
     }
@@ -109,7 +109,7 @@ class _AddUpdateProductPageState extends State<AddUpdateProductPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: DView.appBarLeft(
-          widget.product == null ? 'Add Product' : 'Update Product'),
+          widget.product == null ? 'Tambah Produk' : 'Ubah Produk'),
       body: Form(
         key: formKey,
         autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -119,24 +119,24 @@ class _AddUpdateProductPageState extends State<AddUpdateProductPage> {
             DInput(
               controller: controllerCode,
               hint: 'JAGS676',
-              title: 'Code',
-              validator: (value) => value == '' ? "Don't Empty" : null,
+              title: 'Kode',
+              validator: (value) => value == '' ? "Wajib diisi" : null,
               isRequired: true,
             ),
             DView.spaceHeight(),
             DInput(
               controller: controllerName,
-              hint: 'Your Name',
-              title: 'Name',
-              validator: (value) => value == '' ? "Don't Empty" : null,
+              hint: 'Indomie',
+              title: 'Nama Produk',
+              validator: (value) => value == '' ? "Wajib diisi" : null,
               isRequired: true,
             ),
             DView.spaceHeight(),
             DInput(
               controller: controllerPrice,
               hint: '2000000',
-              title: 'Price',
-              validator: (value) => value == '' ? "Don't Empty" : null,
+              title: 'Harga',
+              validator: (value) => value == '' ? "Wajib diisi" : null,
               isRequired: true,
               inputType: TextInputType.number,
             ),
@@ -144,17 +144,17 @@ class _AddUpdateProductPageState extends State<AddUpdateProductPage> {
             DInput(
               controller: controllerStock,
               hint: '50',
-              title: 'Stock',
-              validator: (value) => value == '' ? "Don't Empty" : null,
+              title: 'Stok',
+              validator: (value) => value == '' ? "Wajib diisi" : null,
               isRequired: true,
               inputType: TextInputType.number,
             ),
             DView.spaceHeight(),
             DInput(
               controller: controllerUnit,
-              hint: 'Item',
-              title: 'Unit',
-              validator: (value) => value == '' ? "Don't Empty" : null,
+              hint: 'pcs',
+              title: 'Satuan',
+              validator: (value) => value == '' ? "Wajib diisi" : null,
               isRequired: true,
             ),
             DView.spaceHeight(),
@@ -164,7 +164,7 @@ class _AddUpdateProductPageState extends State<AddUpdateProductPage> {
                     value: selectedKategori,
                     isExpanded: true,
                     decoration: const InputDecoration(
-                      labelText: 'Category',
+                      labelText: 'Kategori',
                       border: OutlineInputBorder(),
                     ),
                     items: kategoriList.map((kategori) {
@@ -193,7 +193,7 @@ class _AddUpdateProductPageState extends State<AddUpdateProductPage> {
                 }
               },
               child: Text(
-                  widget.product == null ? 'Add Product' : 'Update Product'),
+                  widget.product == null ? 'Tambah Produk' : 'Ubah Produk'),
             ),
           ],
         ),

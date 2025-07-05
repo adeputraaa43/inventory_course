@@ -170,96 +170,91 @@ class _PickProductPageState extends State<PickProductPage> {
       body: Obx(() {
         if (cProduct.loading) return DView.loadingCircle();
         if (cProduct.list.isEmpty) return DView.empty();
-        return ListView.separated(
+        return ListView.builder(
+          padding: const EdgeInsets.all(16),
           itemCount: cProduct.list.length,
-          separatorBuilder: (context, index) {
-            return const Divider(
-              height: 1,
-              color: Colors.white60,
-              indent: 16,
-              endIndent: 16,
-            );
-          },
           itemBuilder: (context, index) {
             Product product = cProduct.list[index];
             return GestureDetector(
               onTap: () => pick(product),
-              child: Container(
-                padding: EdgeInsets.fromLTRB(
-                  16,
-                  index == 0 ? 16 : 8,
-                  0,
-                  index == cProduct.list.length - 1 ? 16 : 0,
+              child: Card(
+                elevation: 2,
+                margin: const EdgeInsets.only(bottom: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                color: Colors.transparent,
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(
-                      height: 30,
-                      width: 30,
-                      child: Text('${index + 1}'),
-                    ),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                color: isDark ? Colors.grey[900] : Colors.grey[100],
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(
+                        height: 30,
+                        width: 30,
+                        child: Center(
+                          child: Text(
+                            '${index + 1}',
+                            style: textTheme.bodyMedium,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              product.name ?? '',
+                              style: textTheme.titleMedium!.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            DView.spaceHeight(4),
+                            Text(
+                              product.code ?? '',
+                              style: textTheme.bodySmall!.copyWith(
+                                color: isDark ? Colors.white70 : Colors.black54,
+                              ),
+                            ),
+                            Text(
+                              product.kategori ?? '-',
+                              style: textTheme.bodySmall!.copyWith(
+                                color: kategoriColor,
+                                fontStyle: FontStyle.italic,
+                              ),
+                            ),
+                            DView.spaceHeight(8),
+                            Text(
+                              'Rp ${product.price ?? ''}',
+                              style: textTheme.subtitle1!.copyWith(
+                                color: Colors.green,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           Text(
-                            product.name ?? '',
-                            style: textTheme.titleMedium!.copyWith(
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          DView.spaceHeight(4),
-                          Text(
-                            product.code ?? '',
-                            style: textTheme.bodySmall!.copyWith(
-                              color: isDark ? Colors.white70 : Colors.black54,
-                            ),
-                          ),
-                          Text(
-                            product.kategori ?? '-',
-                            style: textTheme.bodySmall!.copyWith(
-                              color: kategoriColor,
-                              fontStyle: FontStyle.italic,
-                            ),
-                          ),
-                          DView.spaceHeight(12),
-                          Text(
-                            'Rp ${product.price ?? ''}',
-                            style: textTheme.subtitle1!.copyWith(
-                              color: Colors.green,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(right: 16),
-                          child: Text(
                             product.stock.toString(),
                             style: textTheme.titleLarge!.copyWith(
                               fontWeight: FontWeight.w300,
                             ),
                           ),
-                        ),
-                        DView.spaceHeight(4),
-                        Padding(
-                          padding: const EdgeInsets.only(right: 16),
-                          child: Text(
+                          DView.spaceHeight(4),
+                          Text(
                             product.unit ?? '',
                             style: textTheme.bodySmall!.copyWith(
                               color: Theme.of(context).colorScheme.onBackground,
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ],
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
             );

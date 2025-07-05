@@ -8,6 +8,7 @@ class Supplier {
     this.produkTerjual,
     this.sisaProduk,
     this.createdAt,
+    this.harga,
   });
 
   int? idSupplier;
@@ -18,6 +19,7 @@ class Supplier {
   String? produkTerjual;
   String? sisaProduk;
   String? createdAt;
+  int? harga; // ← jadi int
 
   factory Supplier.fromJson(Map<String, dynamic> json) => Supplier(
         idSupplier: json["id_supplier"] != null
@@ -30,6 +32,9 @@ class Supplier {
         produkTerjual: json["produk_terjual"],
         sisaProduk: json["sisa_produk"],
         createdAt: json["created_at"],
+        harga: json["harga"] != null
+            ? int.parse(json["harga"].toString())
+            : null, // ← parse jadi int
       );
 
   Map<String, dynamic> toJson() => {
@@ -41,5 +46,6 @@ class Supplier {
         "produk_terjual": produkTerjual,
         "sisa_produk": sisaProduk,
         "created_at": createdAt,
+        "harga": harga, // ← kirim int
       };
 }

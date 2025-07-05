@@ -1,3 +1,4 @@
+// Tetap sama
 import 'package:d_chart/d_chart.dart';
 import 'package:d_view/d_view.dart';
 import 'package:flutter/material.dart';
@@ -75,18 +76,15 @@ class _InOutPageState extends State<InOutPage> {
                             data: [
                               {
                                 'domain': 'Yesterday',
-                                'measure': cInOut.listTotal[5],
+                                'measure': cInOut.listTotal[5]
                               },
                               {
                                 'domain': 'Today',
-                                'measure': cInOut.listTotal[6],
+                                'measure': cInOut.listTotal[6]
                               },
                               if (cInOut.listTotal[6] == 0 &&
                                   cInOut.listTotal[5] == 0)
-                                {
-                                  'domain': 'Nol',
-                                  'measure': 1,
-                                },
+                                {'domain': 'Nol', 'measure': 1},
                             ],
                             fillColor: (pieData, index) {
                               switch (pieData['domain']) {
@@ -123,7 +121,7 @@ class _InOutPageState extends State<InOutPage> {
                           children: [
                             Container(height: 20, width: 20, color: colorToday),
                             DView.spaceWidth(8),
-                            Text('Today',
+                            Text('Hari Ini',
                                 style: Theme.of(context)
                                     .textTheme
                                     .titleMedium!
@@ -136,7 +134,7 @@ class _InOutPageState extends State<InOutPage> {
                             Container(
                                 height: 20, width: 20, color: colorYesterday),
                             DView.spaceWidth(8),
-                            Text('Yesterday',
+                            Text('Kemarin',
                                 style: Theme.of(context)
                                     .textTheme
                                     .titleMedium!
@@ -208,7 +206,7 @@ class _InOutPageState extends State<InOutPage> {
             );
           }),
 
-          // Total
+          // Total: pakai Card style
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Obx(() {
@@ -219,7 +217,7 @@ class _InOutPageState extends State<InOutPage> {
                 padding: const EdgeInsets.all(16),
                 margin: const EdgeInsets.only(top: 12),
                 decoration: BoxDecoration(
-                  color: Colors.white12,
+                  color: isDark ? Colors.grey[900] : Colors.grey[200],
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Row(
@@ -234,7 +232,7 @@ class _InOutPageState extends State<InOutPage> {
                       'Total ${widget.type == 'IN' ? 'Barang Masuk' : 'Barang Keluar'}:',
                       style: Theme.of(context).textTheme.titleMedium!.copyWith(
                             fontWeight: FontWeight.bold,
-                            color: isDark ? Colors.white : Colors.black,
+                            color: Theme.of(context).colorScheme.onSurface,
                           ),
                     ),
                     const Spacer(),
@@ -259,7 +257,7 @@ class _InOutPageState extends State<InOutPage> {
             child: Row(
               children: [
                 DView.textTitle(
-                  'History ${widget.type}',
+                  'Riwayat ${widget.type}',
                   color: isDark ? Colors.white : Colors.black,
                 ),
                 const Spacer(),

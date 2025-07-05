@@ -28,16 +28,16 @@ class _ProductPageState extends State<ProductPage>
 
   deleteProduct(String code) async {
     bool yes = await DInfo.dialogConfirmation(
-        context, 'Delete Product', 'You sure to delete product?');
+        context, 'Hapus Produk', 'Apakah Kamu Yakin Ingin Menghapus Produk?');
     if (yes) {
       bool success = await SourceProduct.delete(code);
       if (success) {
-        DInfo.dialogSuccess('Success Delete Product');
+        DInfo.dialogSuccess('Produk Berhasil Dihapus');
         DInfo.closeDialog(actionAfterClose: () {
           cProduct.setList();
         });
       } else {
-        DInfo.dialogError('Failed Delete Product');
+        DInfo.dialogError('Produk Gagal Dihapus');
         DInfo.closeDialog();
       }
     }
@@ -72,7 +72,7 @@ class _ProductPageState extends State<ProductPage>
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Product'),
+        title: const Text('Produk'),
         titleSpacing: 0,
         bottom: TabBar(
           controller: tabController,
@@ -98,135 +98,131 @@ class _ProductPageState extends State<ProductPage>
         if (cProduct.list.isEmpty) return DView.empty();
         return ListView.separated(
           itemCount: cProduct.list.length,
-          separatorBuilder: (context, index) => Divider(
-            height: 1,
-            color: isDark ? Colors.white60 : Colors.black26,
-            indent: 16,
-            endIndent: 16,
-          ),
+          separatorBuilder: (context, index) => const SizedBox(height: 8),
           itemBuilder: (context, index) {
             Product product = cProduct.list[index];
             return Padding(
               padding: EdgeInsets.fromLTRB(
                 16,
                 index == 0 ? 16 : 8,
-                0,
+                16,
                 index == cProduct.list.length - 1 ? 16 : 0,
               ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(
-                    height: 30,
-                    width: 30,
-                    child: Text('${index + 1}'),
-                  ),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          product.name ?? '',
-                          style: textTheme.titleMedium!.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        DView.spaceHeight(4),
-                        Text(
-                          product.code ?? '',
-                          style: textTheme.bodySmall!.copyWith(
-                            color: isDark ? Colors.white70 : Colors.black54,
-                          ),
-                        ),
-                        DView.spaceHeight(4),
-                        Text(
-                          product.kategori ?? '-',
-                          style: textTheme.bodySmall!.copyWith(
-                            color: isDark
-                                ? Colors.amber.shade200
-                                : Colors.orange.shade700,
-                            fontStyle: FontStyle.italic,
-                          ),
-                        ),
-                        DView.spaceHeight(16),
-                        Text(
-                          'Rp ${AppFormat.currency(product.price ?? '0')}',
-                          style: textTheme.subtitle1!.copyWith(
-                            color: Colors.green,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
+              child: Card(
+                elevation: isDark ? 0 : 3,
+                color: isDark ? Colors.grey[850] : Colors.grey[100],
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.only(right: 16),
-                        child: Text(
-                          product.stock.toString(),
-                          style: textTheme.titleLarge!.copyWith(
-                            fontWeight: FontWeight.w300,
-                          ),
+                      SizedBox(
+                        height: 30,
+                        width: 30,
+                        child: Center(
+                          child: Text('${index + 1}'),
                         ),
                       ),
-                      DView.spaceHeight(4),
-                      Padding(
-                        padding: const EdgeInsets.only(right: 16),
-                        child: Text(
-                          product.unit ?? '',
-                          style: textTheme.subtitle2!.copyWith(
-                            color: isDark ? Colors.white70 : Colors.black54,
-                          ),
-                        ),
-                      ),
-                      PopupMenuButton(
-                        onSelected: (value) {
-                          if (value == 'update') {
-                            Get.to(() =>
-                                    AddUpdateProductPage(product: product))!
-                                .then((value) {
-                              if (value ?? false) cProduct.setList();
-                            });
-                          } else if (value == 'delete') {
-                            deleteProduct(product.code!);
-                          }
-                        },
-                        icon: const Icon(Icons.more_horiz),
-                        itemBuilder: (context) {
-                          final List<PopupMenuEntry<String>> items = [
-                            const PopupMenuItem(
-                              value: 'update',
-                              child: Text('Update'),
-                            ),
-                          ];
-                          if (cUser.data.level == 'Admin') {
-                            items.add(
-                              const PopupMenuItem(
-                                value: 'delete',
-                                child: Text('Delete'),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              product.name ?? '',
+                              style: textTheme.titleMedium!.copyWith(
+                                fontWeight: FontWeight.bold,
                               ),
-                            );
-                          }
-                          return items;
-                        },
+                            ),
+                            DView.spaceHeight(4),
+                            Text(
+                              product.code ?? '',
+                              style: textTheme.bodySmall!.copyWith(
+                                color: isDark ? Colors.white70 : Colors.black54,
+                              ),
+                            ),
+                            DView.spaceHeight(4),
+                            Text(
+                              product.kategori ?? '-',
+                              style: textTheme.bodySmall!.copyWith(
+                                color: isDark
+                                    ? Colors.amber.shade200
+                                    : Colors.orange.shade700,
+                                fontStyle: FontStyle.italic,
+                              ),
+                            ),
+                            DView.spaceHeight(8),
+                            Text(
+                              'Rp ${AppFormat.currency(product.price ?? '0')}',
+                              style: textTheme.subtitle1!.copyWith(
+                                color: Colors.green,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                      DView.spaceHeight(4),
-                      if (product.createdAt != null)
-                        Padding(
-                          padding: const EdgeInsets.only(right: 16),
-                          child: Text(
-                            AppFormat.dateTime(product.createdAt!),
-                            style: textTheme.bodySmall!.copyWith(
-                              color: isDark ? Colors.white54 : Colors.black54,
-                              fontSize: 12,
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            product.stock.toString(),
+                            style: textTheme.titleLarge!.copyWith(
+                              fontWeight: FontWeight.w300,
                             ),
                           ),
-                        ),
+                          Text(
+                            product.unit ?? '',
+                            style: textTheme.subtitle2!.copyWith(
+                              color: isDark ? Colors.white70 : Colors.black54,
+                            ),
+                          ),
+                          PopupMenuButton(
+                            onSelected: (value) {
+                              if (value == 'update') {
+                                Get.to(() =>
+                                        AddUpdateProductPage(product: product))!
+                                    .then((value) {
+                                  if (value ?? false) cProduct.setList();
+                                });
+                              } else if (value == 'delete') {
+                                deleteProduct(product.code!);
+                              }
+                            },
+                            icon: const Icon(Icons.more_horiz),
+                            itemBuilder: (context) {
+                              final List<PopupMenuEntry<String>> items = [
+                                const PopupMenuItem(
+                                  value: 'update',
+                                  child: Text('Ubah'),
+                                ),
+                              ];
+                              if (cUser.data.level == 'Admin') {
+                                items.add(
+                                  const PopupMenuItem(
+                                    value: 'delete',
+                                    child: Text('Hapus'),
+                                  ),
+                                );
+                              }
+                              return items;
+                            },
+                          ),
+                          if (product.createdAt != null)
+                            Text(
+                              AppFormat.dateTime(product.createdAt!),
+                              style: textTheme.bodySmall!.copyWith(
+                                color: isDark ? Colors.white54 : Colors.black54,
+                                fontSize: 12,
+                              ),
+                            ),
+                        ],
+                      ),
                     ],
                   ),
-                ],
+                ),
               ),
             );
           },

@@ -58,35 +58,55 @@ class _EmployeePageState extends State<EmployeePage> {
         if (cEmployee.loading) return DView.loadingCircle();
         if (cEmployee.list.isEmpty) return DView.empty();
         return ListView.separated(
+          padding: const EdgeInsets.all(16),
           itemCount: cEmployee.list.length,
-          separatorBuilder: (context, index) => const Divider(
-            height: 1,
-            indent: 16,
-            endIndent: 16,
-            color: Colors.white70,
-          ),
+          separatorBuilder: (context, index) => const SizedBox(height: 12),
           itemBuilder: (context, index) {
             User user = cEmployee.list[index];
-            return ListTile(
-              leading: CircleAvatar(
-                radius: 18,
-                child: Text('${index + 1}'),
+            return Card(
+              color: Theme.of(context).brightness == Brightness.light
+                  ? Colors.grey[100]
+                  : Theme.of(context).cardColor,
+              elevation: 2,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
               ),
-              title: Text(user.name ?? ''),
-              subtitle: Text(user.email ?? ''),
-              trailing: PopupMenuButton<String>(
-                onSelected: (value) {
-                  if (value == 'delete') {
-                    delete(user.idUser.toString());
-                  }
-                },
-                icon: const Icon(Icons.more_vert),
-                itemBuilder: (context) => [
-                  const PopupMenuItem<String>(
-                    value: 'delete',
-                    child: Text('Delete'),
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                child: ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: CircleAvatar(
+                    radius: 18,
+                    backgroundColor: Colors.blue,
+                    child: Text(
+                      '${index + 1}',
+                      style: const TextStyle(color: Colors.white),
+                    ),
                   ),
-                ],
+                  title: Text(
+                    user.name ?? '',
+                    style: Theme.of(context).textTheme.bodyText1,
+                  ),
+                  subtitle: Text(
+                    user.email ?? '',
+                    style: Theme.of(context).textTheme.bodyText2,
+                  ),
+                  trailing: PopupMenuButton<String>(
+                    onSelected: (value) {
+                      if (value == 'delete') {
+                        delete(user.idUser.toString());
+                      }
+                    },
+                    icon: const Icon(Icons.more_vert),
+                    itemBuilder: (context) => [
+                      const PopupMenuItem<String>(
+                        value: 'delete',
+                        child: Text('Delete'),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             );
           },

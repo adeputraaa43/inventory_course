@@ -27,7 +27,7 @@ class _LoginPageState extends State<LoginPage> {
       controllerPassword.text,
     );
     if (success) {
-      DInfo.dialogSuccess('Login Success');
+      DInfo.dialogSuccess('Berhasil Masuk');
       DInfo.closeDialog(actionAfterClose: () {
         DMethod.printTitle('Level User', cUser.data.level ?? '');
         if (cUser.data.level == 'Employee' &&
@@ -38,7 +38,7 @@ class _LoginPageState extends State<LoginPage> {
         }
       });
     } else {
-      DInfo.dialogError('Login failed');
+      DInfo.dialogError('Gagal Masuk');
       DInfo.closeDialog();
     }
   }
@@ -85,7 +85,12 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final textColor = theme.textTheme.bodyText1?.color;
+    final isLightMode = theme.brightness == Brightness.light;
+
     return Scaffold(
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: LayoutBuilder(builder: (context, boxConstraints) {
@@ -106,10 +111,10 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                       Text(
                         'Inventory\nTester',
-                        style:
-                            Theme.of(context).textTheme.displaySmall!.copyWith(
-                                  color: Colors.white,
-                                ),
+                        style: theme.textTheme.displaySmall!.copyWith(
+                          color: textColor,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       DView.spaceHeight(8),
                       Container(
@@ -127,18 +132,22 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   Column(
                     children: [
-                      input(controllerEmail, Icons.email, 'Email'),
+                      input(controllerEmail, Icons.email, 'Email', theme,
+                          isLightMode),
                       DView.spaceHeight(),
-                      input(
-                          controllerPassword, Icons.vpn_key, 'Password', true),
+                      input(controllerPassword, Icons.vpn_key, 'Kata Sandi',
+                          theme, isLightMode, true),
                       DView.spaceHeight(),
                       SizedBox(
                         width: double.infinity,
                         height: 50,
                         child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            primary: AppColor.primary,
+                          ),
                           onPressed: () => login(),
                           child: const Text(
-                            'LOGIN',
+                            'MASUK',
                             style: TextStyle(color: Colors.white),
                           ),
                         ),
@@ -160,22 +169,43 @@ class _LoginPageState extends State<LoginPage> {
   Widget input(
     TextEditingController controller,
     IconData icon,
-    String hint, [
+    String hint,
+    ThemeData theme,
+    bool isLightMode, [
     bool obsecure = false,
   ]) {
-    return TextField(
-      controller: controller,
-      decoration: InputDecoration(
-        fillColor: AppColor.input,
-        filled: true,
-        border: OutlineInputBorder(
-          borderSide: BorderSide.none,
-          borderRadius: BorderRadius.circular(6),
-        ),
-        prefixIcon: Icon(icon, color: AppColor.primary),
-        hintText: hint,
+    final surfaceColor =
+        isLightMode ? Colors.grey.shade200 : theme.colorScheme.surface;
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      decoration: BoxDecoration(
+        color: surfaceColor,
+        borderRadius: BorderRadius.circular(6),
+        boxShadow: isLightMode
+            ? [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.3),
+                  blurRadius: 6,
+                  offset: const Offset(0, 3),
+                ),
+              ]
+            : [],
       ),
-      obscureText: obsecure,
+      child: TextField(
+        controller: controller,
+        decoration: InputDecoration(
+          border: OutlineInputBorder(
+            borderSide: BorderSide.none,
+            borderRadius: BorderRadius.circular(6),
+          ),
+          prefixIcon: Icon(icon, color: AppColor.primary),
+          hintText: hint,
+          hintStyle: TextStyle(color: theme.hintColor),
+        ),
+        obscureText: obsecure,
+        style: TextStyle(color: theme.textTheme.bodyText1?.color),
+      ),
     );
   }
 }

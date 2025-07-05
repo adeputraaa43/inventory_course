@@ -1,9 +1,11 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 import '../../../config/app_color.dart';
+import '../../../config/app_format.dart';
 import '../../../data/model/supplier.dart';
 import 'add_supplier_page.dart';
 import 'package:d_info/d_info.dart';
@@ -26,33 +28,22 @@ class _SupplierPageState extends State<SupplierPage> {
   }
 
   Future<void> fetchAndSetSuppliers() async {
-    setState(() {
-      isLoading = true;
-    });
-
+    setState(() => isLoading = true);
     try {
-      final response = await http.get(
-        Uri.parse(
-            "http://10.0.2.2/inventory_course/api_inventory_course/supplier/get.php"),
-      );
-
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
+      final resp = await http.get(Uri.parse(
+        "http://10.0.2.2/inventory_course/api_inventory_course/supplier/get.php",
+      ));
+      if (resp.statusCode == 200) {
+        final data = json.decode(resp.body);
         if (data['success']) {
-          List<Supplier> loadedSuppliers =
+          suppliers =
               (data['data'] as List).map((e) => Supplier.fromJson(e)).toList();
-
-          setState(() {
-            suppliers = loadedSuppliers;
-          });
         }
       }
     } catch (e) {
-      print("Fetch error: $e");
+      debugPrint("Fetch error: $e");
     } finally {
-      setState(() {
-        isLoading = false;
-      });
+      setState(() => isLoading = false);
     }
   }
 
@@ -62,43 +53,33 @@ class _SupplierPageState extends State<SupplierPage> {
       'Hapus Supplier',
       'Yakin ingin menghapus supplier ini?',
     );
-
     if (!confirm) return;
-
     try {
-      final response = await http.post(
+      final resp = await http.post(
         Uri.parse(
             "http://10.0.2.2/inventory_course/api_inventory_course/supplier/delete.php"),
         body: {'id_supplier': id},
       );
-
-      final data = json.decode(response.body);
+      final data = json.decode(resp.body);
       if (data['success']) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Berhasil dihapus')),
-        );
+        DInfo.toastSuccess('Supplier dihapus');
         await fetchAndSetSuppliers();
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(data['message'] ?? 'Gagal menghapus')),
-        );
+        DInfo.toastError(data['message'] ?? 'Gagal menghapus');
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')),
-      );
+      DInfo.toastError('Error: $e');
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final ColorScheme colorScheme = Theme.of(context).colorScheme;
-    final TextTheme textTheme = Theme.of(context).textTheme;
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Supplier'),
-      ),
+      appBar: AppBar(title: const Text('Supplier')),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : suppliers.isEmpty
@@ -106,10 +87,17 @@ class _SupplierPageState extends State<SupplierPage> {
               : ListView.builder(
                   padding: const EdgeInsets.all(16),
                   itemCount: suppliers.length,
-                  itemBuilder: (context, index) {
-                    final supplier = suppliers[index];
+                  itemBuilder: (ctx, i) {
+                    final s = suppliers[i];
+
+                    final int j = int.tryParse(s.jumlahProduk ?? '0') ?? 0;
+                    final int t = int.tryParse(s.produkTerjual ?? '0') ?? 0;
+                    final double h = (s.harga ?? 0).toDouble();
+                    final int sisa = j - t;
+                    final double totalBayar = t * h;
+
                     return Card(
-                      color: colorScheme.surface,
+                      color: isDark ? Colors.grey[850] : Colors.grey[200],
                       margin: const EdgeInsets.only(bottom: 12),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
@@ -121,50 +109,35 @@ class _SupplierPageState extends State<SupplierPage> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              supplier.namaSupplier ?? '-',
-                              style: textTheme.titleMedium?.copyWith(
-                                color: colorScheme.onSurface,
+                              s.namaSupplier ?? '-',
+                              style: tt.titleMedium?.copyWith(
+                                color: cs.onSurface,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
                             const SizedBox(height: 8),
-                            supplierInfoRow(
-                              Icons.shopping_bag,
-                              Colors.orangeAccent,
-                              'Produk: ${supplier.namaProduk ?? '-'}',
-                              colorScheme,
+                            _row(Icons.shopping_bag, Colors.orangeAccent,
+                                'Produk: ${s.namaProduk}', cs, tt),
+                            _row(Icons.phone, Colors.greenAccent,
+                                'No. Telepon: ${s.noTelp}', cs, tt),
+                            _row(Icons.confirmation_number, Colors.amberAccent,
+                                'Jumlah Produk: $j', cs, tt),
+                            _row(Icons.sell, Colors.lightBlueAccent,
+                                'Produk Terjual: $t', cs, tt),
+                            _row(Icons.inventory_2, Colors.purpleAccent,
+                                'Sisa Produk: $sisa', cs, tt),
+                            const Divider(height: 8, color: Colors.white24),
+                            _row(
+                              Icons.attach_money,
+                              AppColor.primary,
+                              'Total Bayar Ke Supplier: Rp ${AppFormat.currency(totalBayar.toString())}',
+                              cs,
+                              tt,
                             ),
-                            supplierInfoRow(
-                              Icons.phone,
-                              Colors.greenAccent,
-                              'No. Telepon: ${supplier.noTelp ?? '-'}',
-                              colorScheme,
-                            ),
-                            supplierInfoRow(
-                              Icons.confirmation_number,
-                              Colors.amberAccent,
-                              'Jumlah Produk: ${supplier.jumlahProduk ?? '-'}',
-                              colorScheme,
-                            ),
-                            supplierInfoRow(
-                              Icons.sell,
-                              Colors.lightBlueAccent,
-                              'Produk Terjual: ${supplier.produkTerjual ?? '-'}',
-                              colorScheme,
-                            ),
-                            supplierInfoRow(
-                              Icons.inventory_2,
-                              Colors.purpleAccent,
-                              'Sisa Produk: ${supplier.sisaProduk ?? '-'}',
-                              colorScheme,
-                            ),
-                            supplierInfoRow(
-                              Icons.calendar_today,
-                              Colors.cyan,
-                              'Tanggal: ${supplier.createdAt ?? '-'}',
-                              colorScheme,
-                            ),
-                            const Divider(height: 20),
+                            const Divider(height: 8, color: Colors.white24),
+                            _row(Icons.calendar_today, Colors.cyan,
+                                'Tanggal: ${s.createdAt}', cs, tt),
+                            const SizedBox(height: 12),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
@@ -172,23 +145,19 @@ class _SupplierPageState extends State<SupplierPage> {
                                   icon: const Icon(Icons.edit,
                                       color: Colors.amber),
                                   onPressed: () async {
-                                    final result = await Get.to(() =>
-                                        AddSupplierPage(supplier: supplier));
-                                    if (result == true) {
-                                      await fetchAndSetSuppliers();
-                                    }
+                                    final res = await Get.to(
+                                        () => AddSupplierPage(supplier: s));
+                                    if (res == true) fetchAndSetSuppliers();
                                   },
                                 ),
                                 IconButton(
                                   icon: const Icon(Icons.delete,
                                       color: Colors.redAccent),
-                                  onPressed: () {
-                                    deleteSupplier(
-                                        supplier.idSupplier?.toString() ?? '');
-                                  },
+                                  onPressed: () =>
+                                      deleteSupplier(s.idSupplier.toString()),
                                 ),
                               ],
-                            )
+                            ),
                           ],
                         ),
                       ),
@@ -196,37 +165,27 @@ class _SupplierPageState extends State<SupplierPage> {
                   },
                 ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          final result = await Get.to(() => const AddSupplierPage());
-          if (result == true) {
-            await fetchAndSetSuppliers();
-          }
-        },
         backgroundColor: AppColor.primary,
         child: const Icon(Icons.add),
+        onPressed: () async {
+          final res = await Get.to(() => const AddSupplierPage());
+          if (res == true) fetchAndSetSuppliers();
+        },
       ),
     );
   }
 
-  Widget supplierInfoRow(
-    IconData icon,
-    Color iconColor,
-    String text,
-    ColorScheme colorScheme,
-  ) {
+  Widget _row(
+      IconData icon, Color col, String text, ColorScheme cs, TextTheme tt) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 4.0),
+      padding: const EdgeInsets.symmetric(vertical: 2),
       child: Row(
         children: [
-          Icon(icon, color: iconColor, size: 18),
+          Icon(icon, color: col, size: 18),
           const SizedBox(width: 8),
           Expanded(
-            child: Text(
-              text,
-              style: TextStyle(
-                color: colorScheme.onSurface.withOpacity(0.7),
-              ),
-            ),
+            child:
+                Text(text, style: tt.bodyMedium?.copyWith(color: cs.onSurface)),
           ),
         ],
       ),
