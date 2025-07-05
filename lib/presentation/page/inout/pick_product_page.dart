@@ -104,7 +104,7 @@ class _PickProductPageState extends State<PickProductPage> {
             ),
             const SizedBox(height: 12),
             Text(
-              'Tekan "Yes" untuk konfirmasi',
+              'Tekan "Ya" untuk konfirmasi',
               style: TextStyle(color: isDark ? Colors.white54 : Colors.black54),
             ),
           ],
@@ -112,18 +112,18 @@ class _PickProductPageState extends State<PickProductPage> {
         actions: [
           TextButton(
             onPressed: () => Get.back(result: false),
-            child: Text('No',
+            child: Text('Tidak',
                 style: TextStyle(color: isDark ? Colors.pink : Colors.pink)),
           ),
           TextButton(
             onPressed: () {
               if (controllerQuantity.text == '') {
-                DInfo.toastError("Quantity don't empty");
+                DInfo.toastError("Jumlah tidak boleh kosong");
               } else {
                 Get.back(result: true);
               }
             },
-            child: Text('Yes',
+            child: Text('Ya',
                 style:
                     TextStyle(color: isDark ? Colors.cyanAccent : Colors.blue)),
           ),
@@ -147,7 +147,7 @@ class _PickProductPageState extends State<PickProductPage> {
         Get.back(result: data);
       } else {
         if (int.parse(controllerQuantity.text) > stock) {
-          DInfo.toastError('Quantity is bigger than stock');
+          DInfo.toastError('Jumlah melebihi stok tersedia');
         } else {
           Get.back(result: data);
         }
@@ -164,12 +164,19 @@ class _PickProductPageState extends State<PickProductPage> {
     TextTheme textTheme = Theme.of(context).textTheme;
     return Scaffold(
       appBar: AppBar(
-        title: Text('Pick Product ${widget.type}'),
+        title: Text('Pilih Produk ${widget.type == 'IN' ? 'Masuk' : 'Keluar'}'),
         titleSpacing: 0,
       ),
       body: Obx(() {
         if (cProduct.loading) return DView.loadingCircle();
-        if (cProduct.list.isEmpty) return DView.empty();
+        if (cProduct.list.isEmpty) {
+          return const Center(
+            child: Text(
+              'Tidak ada data',
+              style: TextStyle(color: Colors.grey, fontSize: 16),
+            ),
+          );
+        }
         return ListView.builder(
           padding: const EdgeInsets.all(16),
           itemCount: cProduct.list.length,

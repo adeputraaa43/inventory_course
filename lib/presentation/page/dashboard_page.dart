@@ -33,6 +33,8 @@ class _DashboardPageState extends State<DashboardPage> {
       context,
       'Keluar',
       'Apakah Kamu Yakin ingin Keluar?',
+      textNo: 'Tidak',
+      textYes: 'Iya',
     );
     if (yes) {
       Session.clearUser();

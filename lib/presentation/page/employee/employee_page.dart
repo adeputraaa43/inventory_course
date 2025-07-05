@@ -19,17 +19,33 @@ class _EmployeePageState extends State<EmployeePage> {
   final cEmployee = Get.put(CEmployee());
 
   delete(String idUser) async {
-    bool yes = await DInfo.dialogConfirmation(
-        context, 'Delete Employee', 'Yes to confirm');
+    bool yes = await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => AlertDialog(
+        title: const Text('Hapus Karyawan'),
+        content: const Text('Klik Iya untuk menghapus'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Tidak'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Iya'),
+          ),
+        ],
+      ),
+    );
     if (yes) {
       bool success = await SourceUser.delete(idUser);
       if (success) {
-        DInfo.dialogSuccess('Success Delete Employee');
+        DInfo.dialogSuccess('Berhasil Menghapus Karyawan');
         DInfo.closeDialog(
           actionAfterClose: () => cEmployee.setList(),
         );
       } else {
-        DInfo.dialogError('Failed Delete Employee');
+        DInfo.dialogError('Gagal Menghapus Karyawan');
         DInfo.closeDialog();
       }
     }
@@ -40,7 +56,7 @@ class _EmployeePageState extends State<EmployeePage> {
     return Scaffold(
       appBar: AppBar(
         titleSpacing: 0,
-        title: const Text('Employee'),
+        title: const Text('Karyawan'),
         actions: [
           IconButton(
             onPressed: () {
@@ -102,7 +118,7 @@ class _EmployeePageState extends State<EmployeePage> {
                     itemBuilder: (context) => [
                       const PopupMenuItem<String>(
                         value: 'delete',
-                        child: Text('Delete'),
+                        child: Text('Hapus'),
                       ),
                     ],
                   ),

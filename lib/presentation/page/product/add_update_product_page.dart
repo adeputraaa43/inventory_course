@@ -43,7 +43,6 @@ class _AddUpdateProductPageState extends State<AddUpdateProductPage> {
     fetchKategori().then((data) {
       kategoriList = data;
       isLoadingKategori = false;
-
       if (widget.product != null) {
         selectedKategori = kategoriList.firstWhere(
           (k) => k.id == widget.product!.idKategori,
@@ -54,9 +53,30 @@ class _AddUpdateProductPageState extends State<AddUpdateProductPage> {
     });
   }
 
+  Future<bool> _showConfirmation(String title, String message) async {
+    return await showDialog<bool>(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Text(title),
+            content: Text(message),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('Tidak'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: const Text('Iya'),
+              ),
+            ],
+          ),
+        ) ??
+        false;
+  }
+
   addProduct() async {
-    bool yes = await DInfo.dialogConfirmation(
-        context, 'Tambah Produk', 'Apakah Kamu Yakin Ingin Menambah Produk?');
+    bool yes = await _showConfirmation(
+        'Tambah Produk', 'Apakah Kamu Yakin Ingin Menambah Produk?');
     if (yes) {
       bool success = await SourceProduct.add(Product(
         code: controllerCode.text,
@@ -79,8 +99,8 @@ class _AddUpdateProductPageState extends State<AddUpdateProductPage> {
   }
 
   updateProduct() async {
-    bool yes = await DInfo.dialogConfirmation(
-        context, 'Ubah Produk', 'Apakah Kamu Yakin Ingin Mengubah Produk?');
+    bool yes = await _showConfirmation(
+        'Ubah Produk', 'Apakah Kamu Yakin Ingin Mengubah Produk?');
     if (yes) {
       bool success = await SourceProduct.update(
         widget.product!.code!,
@@ -120,7 +140,7 @@ class _AddUpdateProductPageState extends State<AddUpdateProductPage> {
               controller: controllerCode,
               hint: 'JAGS676',
               title: 'Kode',
-              validator: (value) => value == '' ? "Wajib diisi" : null,
+              validator: (value) => value == '' ? 'Wajib diisi' : null,
               isRequired: true,
             ),
             DView.spaceHeight(),
@@ -128,7 +148,7 @@ class _AddUpdateProductPageState extends State<AddUpdateProductPage> {
               controller: controllerName,
               hint: 'Indomie',
               title: 'Nama Produk',
-              validator: (value) => value == '' ? "Wajib diisi" : null,
+              validator: (value) => value == '' ? 'Wajib diisi' : null,
               isRequired: true,
             ),
             DView.spaceHeight(),
@@ -136,7 +156,7 @@ class _AddUpdateProductPageState extends State<AddUpdateProductPage> {
               controller: controllerPrice,
               hint: '2000000',
               title: 'Harga',
-              validator: (value) => value == '' ? "Wajib diisi" : null,
+              validator: (value) => value == '' ? 'Wajib diisi' : null,
               isRequired: true,
               inputType: TextInputType.number,
             ),
@@ -145,7 +165,7 @@ class _AddUpdateProductPageState extends State<AddUpdateProductPage> {
               controller: controllerStock,
               hint: '50',
               title: 'Stok',
-              validator: (value) => value == '' ? "Wajib diisi" : null,
+              validator: (value) => value == '' ? 'Wajib diisi' : null,
               isRequired: true,
               inputType: TextInputType.number,
             ),
@@ -154,7 +174,7 @@ class _AddUpdateProductPageState extends State<AddUpdateProductPage> {
               controller: controllerUnit,
               hint: 'pcs',
               title: 'Satuan',
-              validator: (value) => value == '' ? "Wajib diisi" : null,
+              validator: (value) => value == '' ? 'Wajib diisi' : null,
               isRequired: true,
             ),
             DView.spaceHeight(),
@@ -179,7 +199,7 @@ class _AddUpdateProductPageState extends State<AddUpdateProductPage> {
                       });
                     },
                     validator: (value) =>
-                        value == null ? 'Category must be selected' : null,
+                        value == null ? 'Kategori harus dipilih' : null,
                   ),
             DView.spaceHeight(),
             ElevatedButton(

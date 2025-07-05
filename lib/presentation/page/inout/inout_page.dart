@@ -14,7 +14,7 @@ import '../../controller/c_user.dart';
 
 class InOutPage extends StatefulWidget {
   const InOutPage({Key? key, required this.type}) : super(key: key);
-  final String type;
+  final String type; // "IN" atau "OUT"
 
   @override
   State<InOutPage> createState() => _InOutPageState();
@@ -23,6 +23,10 @@ class InOutPage extends StatefulWidget {
 class _InOutPageState extends State<InOutPage> {
   final cInOut = Get.put(CInOut());
   final cuser = Get.put(CUser());
+
+  static const _domainToday = 'Hari Ini';
+  static const _domainYesterday = 'Kemarin';
+  static const _domainZero = 'Nol';
 
   @override
   void initState() {
@@ -37,11 +41,13 @@ class _InOutPageState extends State<InOutPage> {
         ? (isDark ? Colors.lightGreenAccent : Colors.green.shade700)
         : (isDark ? Colors.redAccent.shade100 : Colors.red.shade700);
     final colorYesterday = isDark ? Colors.deepPurpleAccent : Colors.deepPurple;
+    final String typeTitle =
+        widget.type == 'IN' ? 'Barang Masuk' : 'Barang Keluar';
 
     return Scaffold(
       appBar: AppBar(
         titleSpacing: 0,
-        title: Text(widget.type),
+        title: Text(typeTitle),
         actions: cuser.data.level == 'Admin'
             ? [
                 IconButton(
@@ -60,6 +66,7 @@ class _InOutPageState extends State<InOutPage> {
       ),
       body: ListView(
         children: [
+          // PIE CHART
           AspectRatio(
             aspectRatio: 16 / 9,
             child: Padding(
@@ -75,22 +82,22 @@ class _InOutPageState extends State<InOutPage> {
                           DChartPie(
                             data: [
                               {
-                                'domain': 'Yesterday',
+                                'domain': _domainYesterday,
                                 'measure': cInOut.listTotal[5]
                               },
                               {
-                                'domain': 'Today',
+                                'domain': _domainToday,
                                 'measure': cInOut.listTotal[6]
                               },
                               if (cInOut.listTotal[6] == 0 &&
                                   cInOut.listTotal[5] == 0)
-                                {'domain': 'Nol', 'measure': 1},
+                                {'domain': _domainZero, 'measure': 1},
                             ],
                             fillColor: (pieData, index) {
                               switch (pieData['domain']) {
-                                case 'Today':
+                                case _domainToday:
                                   return colorToday;
-                                case 'Yesterday':
+                                case _domainYesterday:
                                   return colorYesterday;
                                 default:
                                   return Colors.grey.shade300;
@@ -112,6 +119,8 @@ class _InOutPageState extends State<InOutPage> {
                     );
                   }),
                   DView.spaceWidth(40),
+
+                  // LEGEND
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -121,7 +130,7 @@ class _InOutPageState extends State<InOutPage> {
                           children: [
                             Container(height: 20, width: 20, color: colorToday),
                             DView.spaceWidth(8),
-                            Text('Hari Ini',
+                            Text(_domainToday,
                                 style: Theme.of(context)
                                     .textTheme
                                     .titleMedium!
@@ -134,7 +143,7 @@ class _InOutPageState extends State<InOutPage> {
                             Container(
                                 height: 20, width: 20, color: colorYesterday),
                             DView.spaceWidth(8),
-                            Text('Kemarin',
+                            Text(_domainYesterday,
                                 style: Theme.of(context)
                                     .textTheme
                                     .titleMedium!
@@ -146,7 +155,7 @@ class _InOutPageState extends State<InOutPage> {
                           String percent =
                               cInOut.percentDifferent.toStringAsFixed(1);
                           return Text(
-                            '$percent% ${cInOut.textDifferent}\nthan yesterday\nor equal to',
+                            '$percent% ${cInOut.textDifferent}\ndari kemarin\natau sama dengan',
                             maxLines: 5,
                             style: Theme.of(context)
                                 .textTheme
@@ -179,7 +188,7 @@ class _InOutPageState extends State<InOutPage> {
             ),
           ),
 
-          // Bar chart
+          // BAR CHART
           GetBuilder<CInOut>(builder: (_) {
             return AspectRatio(
               aspectRatio: 16 / 9,
@@ -206,13 +215,12 @@ class _InOutPageState extends State<InOutPage> {
             );
           }),
 
-          // Total: pakai Card style
+          // TOTAL CARD
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Obx(() {
               double total =
                   widget.type == 'IN' ? cInOut.totalMasuk : cInOut.totalKeluar;
-
               return Container(
                 padding: const EdgeInsets.all(16),
                 margin: const EdgeInsets.only(top: 12),
@@ -229,7 +237,7 @@ class _InOutPageState extends State<InOutPage> {
                     ),
                     const SizedBox(width: 12),
                     Text(
-                      'Total ${widget.type == 'IN' ? 'Barang Masuk' : 'Barang Keluar'}:',
+                      'Total $typeTitle:',
                       style: Theme.of(context).textTheme.titleMedium!.copyWith(
                             fontWeight: FontWeight.bold,
                             color: Theme.of(context).colorScheme.onSurface,
@@ -251,30 +259,51 @@ class _InOutPageState extends State<InOutPage> {
 
           DView.spaceHeight(16),
 
-          // List History
+          // HEADER RIWAYAT
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Row(
               children: [
                 DView.textTitle(
-                  'Riwayat ${widget.type}',
+                  'Riwayat $typeTitle',
                   color: isDark ? Colors.white : Colors.black,
                 ),
                 const Spacer(),
-                DView.textAction(
-                  () {
+                GestureDetector(
+                  onTap: () {
                     Get.to(() => InOutHistoryPage(type: widget.type));
                   },
-                  color: AppColor.primary,
-                  iconRight: Icons.navigate_next,
-                  iconRightColor: AppColor.primary,
+                  child: Row(
+                    children: const [
+                      Text(
+                        'Lihat Semua',
+                        style: TextStyle(
+                          color: AppColor.primary,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Icon(Icons.navigate_next, color: AppColor.primary),
+                    ],
+                  ),
                 ),
               ],
             ),
           ),
 
+          // LIST RIWAYAT
           GetBuilder<CInOut>(builder: (_) {
-            if (cInOut.list.isEmpty) return DView.empty();
+            if (cInOut.list.isEmpty) {
+              return const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(24.0),
+                  child: Text(
+                    'Tidak ada data',
+                    style: TextStyle(color: Colors.grey),
+                  ),
+                ),
+              );
+            }
+
             return ListView.separated(
               itemCount: cInOut.list.length,
               shrinkWrap: true,

@@ -52,6 +52,8 @@ class _SupplierPageState extends State<SupplierPage> {
       context,
       'Hapus Supplier',
       'Yakin ingin menghapus supplier ini?',
+      textNo: 'Tidak',
+      textYes: 'Iya',
     );
     if (!confirm) return;
     try {

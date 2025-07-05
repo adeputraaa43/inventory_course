@@ -12,6 +12,7 @@ class CAddInOut extends GetxController {
 
   final RxList<Map> _list = <Map>[].obs;
   List<Map> get list => _list.value;
+
   add(newData) async {
     _list.value.add(newData);
     double quantity = double.parse(newData['quantity'].toString());
@@ -37,13 +38,15 @@ class CAddInOut extends GetxController {
     );
     if (success) {
       DMethod.printTitle('addinout', 'success');
-      DInfo.dialogSuccess('Success Add $type');
+      DInfo.dialogSuccess(
+          'Berhasil Menambahkan Barang ${type == 'IN' ? 'Masuk' : 'Keluar'}');
       DInfo.closeDialog(actionAfterClose: () {
         DMethod.printTitle('addinout', 'close dialog');
         Get.back(result: true);
       });
     } else {
-      DInfo.dialogError('Failed Add $type');
+      DInfo.dialogError(
+          'Gagal Menambahkan Barang ${type == 'IN' ? 'Masuk' : 'Keluar'}');
       DInfo.closeDialog();
     }
   }

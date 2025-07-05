@@ -26,9 +26,29 @@ class _ProductPageState extends State<ProductPage>
   late TabController tabController;
   bool isKategoriReady = false;
 
+  Future<bool> _konfirmasiHapus() async {
+    return await showDialog<bool>(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Hapus Produk'),
+            content: const Text('Apakah Kamu Yakin Ingin Menghapus Produk?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('Tidak'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: const Text('Iya'),
+              ),
+            ],
+          ),
+        ) ??
+        false;
+  }
+
   deleteProduct(String code) async {
-    bool yes = await DInfo.dialogConfirmation(
-        context, 'Hapus Produk', 'Apakah Kamu Yakin Ingin Menghapus Produk?');
+    bool yes = await _konfirmasiHapus();
     if (yes) {
       bool success = await SourceProduct.delete(code);
       if (success) {

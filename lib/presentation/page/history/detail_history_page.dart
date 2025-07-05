@@ -3,8 +3,6 @@ import 'dart:convert';
 import 'package:d_info/d_info.dart';
 import 'package:d_view/d_view.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/foundation/key.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:get/get.dart';
 import '../../../config/app_format.dart';
 import '../../../data/source/source_history.dart';
@@ -25,17 +23,35 @@ class _DetailHistoryPageState extends State<DetailHistoryPage> {
   final cUser = Get.put(CUser());
 
   delete() async {
-    bool yes = await DInfo.dialogConfirmation(
-        context, 'Delete History', 'You sure to delete history?');
-    if (yes) {
+    bool? result = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Hapus Riwayat'),
+          content: const Text('Apakah Anda yakin ingin menghapus riwayat ini?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Tidak'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Iya'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (result == true) {
       bool success = await SourceHistory.deleteWhereId(widget.idHistory);
       if (success) {
-        DInfo.dialogSuccess('Success Delete History');
+        DInfo.dialogSuccess('Berhasil menghapus riwayat');
         DInfo.closeDialog(actionAfterClose: () {
           Get.back(result: true);
         });
       } else {
-        DInfo.dialogError('Failed Delete History');
+        DInfo.dialogError('Gagal menghapus riwayat');
         DInfo.closeDialog();
       }
     }
@@ -55,9 +71,7 @@ class _DetailHistoryPageState extends State<DetailHistoryPage> {
         titleSpacing: 0,
         title: Obx(() {
           if (cDetailHistory.data.idHistory == null) return const Text('');
-          return Text(
-            AppFormat.date(cDetailHistory.data.createdAt!),
-          );
+          return Text(AppFormat.date(cDetailHistory.data.createdAt!));
         }),
         actions: [
           Obx(() {
@@ -76,7 +90,7 @@ class _DetailHistoryPageState extends State<DetailHistoryPage> {
           if (cUser.data.level == 'Admin') {
             delete();
           } else {
-            DInfo.toastError('You are have no access');
+            DInfo.toastError('Anda tidak memiliki akses');
           }
         },
         child: const Icon(Icons.delete),

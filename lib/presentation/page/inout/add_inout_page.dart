@@ -1,8 +1,6 @@
 import 'package:d_info/d_info.dart';
 import 'package:d_view/d_view.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/foundation/key.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:get/get.dart';
 import '../../../config/app_color.dart';
 import '../../../data/source/source_inout.dart';
@@ -21,20 +19,36 @@ class AddInOutPage extends StatefulWidget {
 
 class _AddInOutPageState extends State<AddInOutPage> {
   final cAddInOut = Get.put(CAddInOut());
+
   @override
   Widget build(BuildContext context) {
     TextTheme textTheme = Theme.of(context).textTheme;
     return Scaffold(
       appBar: AppBar(
         titleSpacing: 0,
-        title: Text('Add ${widget.type}'),
+        title:
+            Text('Tambah Barang ${widget.type == 'IN' ? 'Masuk' : 'Keluar'}'),
         actions: [
           IconButton(
             onPressed: () async {
-              bool yes = await DInfo.dialogConfirmation(
-                context,
-                'Confirmation Add',
-                'Yes to confirm',
+              bool yes = await showDialog(
+                context: context,
+                builder: (context) {
+                  return AlertDialog(
+                    title: const Text('Konfirmasi Tambah'),
+                    content: const Text('Klik Iya untuk menambahkan'),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context, false),
+                        child: const Text('Tidak'),
+                      ),
+                      TextButton(
+                        onPressed: () => Navigator.pop(context, true),
+                        child: const Text('Iya'),
+                      ),
+                    ],
+                  );
+                },
               );
               if (yes) {
                 cAddInOut.addInOut(widget.type);
@@ -56,16 +70,26 @@ class _AddInOutPageState extends State<AddInOutPage> {
                   }
                 });
               },
-              child: const Text('Pick product'),
+              child: const Text('Pilih Produk'),
             ),
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
-            child: DView.textTitle('List Product'),
+            child: DView.textTitle('Daftar Produk'),
           ),
           const Divider(indent: 16, endIndent: 16),
           GetBuilder<CAddInOut>(builder: (_) {
-            if (cAddInOut.list.isEmpty) return DView.empty();
+            if (cAddInOut.list.isEmpty) {
+              return const Center(
+                child: Text(
+                  'Tidak ada data',
+                  style: TextStyle(
+                    color: Colors.grey,
+                    fontSize: 16,
+                  ),
+                ),
+              );
+            }
             return ListView.separated(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
@@ -155,7 +179,7 @@ class _AddInOutPageState extends State<AddInOutPage> {
                             itemBuilder: (context) => [
                               const PopupMenuItem(
                                 value: 'delete',
-                                child: Text('Delete'),
+                                child: Text('Hapus'),
                               ),
                             ],
                           ),

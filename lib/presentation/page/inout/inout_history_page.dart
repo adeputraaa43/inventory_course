@@ -5,7 +5,6 @@ import 'package:intl/intl.dart';
 
 import '../../../config/app_format.dart';
 import '../../../data/model/history.dart';
-import '../../controller/c_history.dart';
 import '../../controller/c_in_out_history.dart';
 import '../history/detail_history_page.dart';
 
@@ -29,25 +28,49 @@ class _InOutHistoryPageState extends State<InOutHistoryPage> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final String title =
+        widget.type == 'IN' ? 'Riwayat Barang Masuk' : 'Riwayat Barang Keluar';
+
     return Scaffold(
       appBar: AppBar(
         titleSpacing: 0,
         title: Row(
           children: [
-            Text('History ${widget.type}'),
+            Text(title),
             search(),
           ],
         ),
       ),
       body: GetBuilder<CInOutHistory>(builder: (_) {
-        if (cInOutHistory.list.isEmpty) return DView.empty();
+        if (cInOutHistory.list.isEmpty) {
+          return const Center(
+            child: Text(
+              'Tidak ada data',
+              style: TextStyle(color: Colors.grey),
+            ),
+          );
+        }
         return ListView(
+          padding: const EdgeInsets.all(16),
           children: [
             ...List.generate(cInOutHistory.list.length, (index) {
               History history = cInOutHistory.list[index];
-              return Column(
-                children: [
-                  ListTile(
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: Card(
+                  color: Theme.of(context).cardColor,
+                  elevation: 2,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    side: BorderSide(
+                      color: isDark
+                          ? Colors.white12
+                          : Colors.grey.shade300, // terlihat di light mode
+                    ),
+                  ),
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(12),
                     onTap: () {
                       Get.to(() => DetailHistoryPage(
                           idHistory: '${history.idHistory}'))?.then((value) {
@@ -56,31 +79,43 @@ class _InOutHistoryPageState extends State<InOutHistoryPage> {
                         }
                       });
                     },
-                    leading: widget.type == 'IN'
-                        ? const Icon(Icons.south_west, color: Colors.green)
-                        : const Icon(Icons.north_east, color: Colors.red),
-                    horizontalTitleGap: 0,
-                    title: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          AppFormat.date(history.createdAt!),
-                          style: Theme.of(context).textTheme.subtitle2,
-                        ),
-                        Text(
-                          'Rp ${AppFormat.currency(history.totalPrice ?? '0')}',
-                          style: Theme.of(context).textTheme.titleLarge,
-                        ),
-                      ],
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Row(
+                        children: [
+                          Icon(
+                            widget.type == 'IN'
+                                ? Icons.south_west
+                                : Icons.north_east,
+                            color:
+                                widget.type == 'IN' ? Colors.green : Colors.red,
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  AppFormat.date(history.createdAt!),
+                                  style: Theme.of(context).textTheme.bodySmall,
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  'Rp ${AppFormat.currency(history.totalPrice ?? '0')}',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleMedium
+                                      ?.copyWith(fontWeight: FontWeight.bold),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const Icon(Icons.chevron_right),
+                        ],
+                      ),
                     ),
                   ),
-                  const Divider(
-                    height: 1,
-                    color: Colors.white54,
-                    indent: 16,
-                    endIndent: 16,
-                  ),
-                ],
+                ),
               );
             }),
             if (cInOutHistory.hasNext)
@@ -128,7 +163,7 @@ class _InOutHistoryPageState extends State<InOutHistoryPage> {
             isDense: true,
             filled: true,
             fillColor: Theme.of(context).cardColor,
-            hintText: 'Search...',
+            hintText: 'Cari tanggal...',
             hintStyle: TextStyle(color: Theme.of(context).hintColor),
             suffixIcon: IconButton(
               onPressed: () {

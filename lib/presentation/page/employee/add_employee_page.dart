@@ -2,8 +2,6 @@ import 'package:d_info/d_info.dart';
 import 'package:d_input/d_input.dart';
 import 'package:d_view/d_view.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/foundation/key.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:get/get.dart';
 import 'package:inventory_course/data/source/source_user.dart';
 
@@ -23,7 +21,12 @@ class _AddEmployeePageState extends State<AddEmployeePage> {
   add() async {
     if (formKey.currentState!.validate()) {
       bool yes = await DInfo.dialogConfirmation(
-          context, 'Add Employee', 'Yes to confirm');
+        context,
+        'Tambah Karyawan',
+        'Pilih Iya untuk konfirmasi',
+        textNo: 'Tidak',
+        textYes: 'Iya',
+      );
       if (yes) {
         bool success = await SourceUser.add(
           controllerName.text,
@@ -31,12 +34,12 @@ class _AddEmployeePageState extends State<AddEmployeePage> {
           controllerPassword.text,
         );
         if (success) {
-          DInfo.dialogSuccess('Success Add Employee');
+          DInfo.dialogSuccess('Berhasil Menambahkan Karyawan');
           DInfo.closeDialog(
             actionAfterClose: () => Get.back(result: true),
           );
         } else {
-          DInfo.dialogError('Failed Add Employee');
+          DInfo.dialogError('Gagal Menambahkan Karyawan');
           DInfo.closeDialog();
         }
       }
@@ -46,33 +49,33 @@ class _AddEmployeePageState extends State<AddEmployeePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: DView.appBarLeft('Add Employee'),
+      appBar: DView.appBarLeft('Tambah Karyawan'),
       body: Form(
         key: formKey,
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
             DInput(
-              title: 'Name',
+              title: 'Nama',
               controller: controllerName,
-              validator: (value) => value == '' ? "Don't empty" : null,
+              validator: (value) => value == '' ? 'Jangan kosong' : null,
             ),
             DView.spaceHeight(),
             DInput(
               title: 'Email',
               controller: controllerEmail,
-              validator: (value) => value == '' ? "Don't empty" : null,
+              validator: (value) => value == '' ? 'Jangan kosong' : null,
             ),
             DView.spaceHeight(),
             DInput(
-              title: 'Password',
+              title: 'Kata Sandi',
               controller: controllerPassword,
-              validator: (value) => value == '' ? "Don't empty" : null,
+              validator: (value) => value == '' ? 'Jangan kosong' : null,
             ),
             DView.spaceHeight(),
             ElevatedButton(
               onPressed: () => add(),
-              child: const Text('Add'),
+              child: const Text('Tambah Karyawan'),
             ),
           ],
         ),

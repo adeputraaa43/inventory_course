@@ -26,7 +26,6 @@ class _AddSupplierPageState extends State<AddSupplierPage> {
   void initState() {
     super.initState();
     if (widget.supplier != null) {
-      // Isi field jika edit
       controllerName.text = widget.supplier!.namaSupplier ?? '';
       controllerProduct.text = widget.supplier!.namaProduk ?? '';
       controllerTelp.text = widget.supplier!.noTelp ?? '';
@@ -55,7 +54,6 @@ class _AddSupplierPageState extends State<AddSupplierPage> {
     String harga = controllerHarga.text.trim();
     String terjual = controllerTerjual.text.trim();
 
-    // Validasi wajib isi
     if (name.isEmpty ||
         product.isEmpty ||
         telp.isEmpty ||
@@ -69,25 +67,33 @@ class _AddSupplierPageState extends State<AddSupplierPage> {
     double hargaD = double.tryParse(harga) ?? 0.0;
     int terjualInt = int.tryParse(terjual) ?? 0;
 
-    // Jika edit, validasi produk terjual
     if (widget.supplier != null) {
       if (terjual.isEmpty) {
         Get.snackbar('Error', 'Produk terjual wajib diisi');
         return;
       }
       if (terjualInt > jumlahInt) {
-        Get.snackbar(
-            'Gagal', 'Produk terjual tidak boleh lebih dari jumlah produk');
+        await Get.dialog(
+          AlertDialog(
+            title: const Text('Gagal'),
+            content: const Text(
+                'Produk terjual tidak boleh lebih dari jumlah produk.'),
+            actions: [
+              TextButton(
+                onPressed: () => Get.back(),
+                child: const Text('OK'),
+              ),
+            ],
+          ),
+          barrierDismissible: false,
+        );
         return;
       }
     }
-
-    // Tentukan URL add atau update
     String url = widget.supplier == null
         ? "http://10.0.2.2/inventory_course/api_inventory_course/supplier/add.php"
         : "http://10.0.2.2/inventory_course/api_inventory_course/supplier/update.php";
 
-    // Siapkan body
     Map<String, String> body = {
       "nama_supplier": name,
       "nama_produk": product,
@@ -100,40 +106,52 @@ class _AddSupplierPageState extends State<AddSupplierPage> {
       body["produk_terjual"] = terjual;
     }
 
-    // Konfirmasi dulu
     final yes = await Get.dialog<bool>(
       AlertDialog(
-        title: Text("Konfirmasi"),
+        title: const Text("Konfirmasi"),
         content: Text(widget.supplier == null
             ? "Yakin ingin menambahkan supplier?"
             : "Yakin ingin mengupdate supplier?"),
         actions: [
           TextButton(
-              onPressed: () => Get.back(result: false), child: Text("Tidak")),
+            onPressed: () => Get.back(result: false),
+            child: const Text("Tidak"),
+          ),
           TextButton(
-              onPressed: () => Get.back(result: true), child: Text("Ya")),
+            onPressed: () => Get.back(result: true),
+            child: const Text("Ya"),
+          ),
         ],
       ),
       barrierDismissible: false,
     );
-    if (yes != true) {
-      // kalau user batal (ataupun menutup dialog), stop di sini
-      return;
-    }
 
-    // Kirim ke server
+    if (yes != true) return;
+
     try {
       final response = await http.post(Uri.parse(url), body: body);
       final data = jsonDecode(response.body);
+
       if (response.statusCode == 200 && data['success'] == true) {
-        Get.snackbar(
-          widget.supplier == null ? 'Berhasil' : 'Diperbarui',
-          widget.supplier == null
-              ? 'Supplier berhasil ditambahkan'
-              : 'Supplier berhasil diperbarui',
+        await Get.dialog(
+          AlertDialog(
+            title: Text(
+                widget.supplier == null ? 'Berhasil' : 'Berhasil Diperbarui'),
+            content: Text(widget.supplier == null
+                ? 'Supplier berhasil ditambahkan.'
+                : 'Supplier berhasil diperbarui.'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Get.back(); // close dialog
+                  Get.back(result: true); // return to previous page
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          ),
+          barrierDismissible: false,
         );
-        await Future.delayed(const Duration(milliseconds: 500));
-        Get.back(result: true);
       } else {
         Get.snackbar('Gagal', data['message'] ?? 'Gagal memproses');
       }
@@ -144,7 +162,6 @@ class _AddSupplierPageState extends State<AddSupplierPage> {
 
   @override
   Widget build(BuildContext context) {
-    // Hitung otomatis setiap rebuild
     int j = int.tryParse(controllerJumlah.text) ?? 0;
     int t = int.tryParse(controllerTerjual.text) ?? 0;
     double h = double.tryParse(controllerHarga.text) ?? 0.0;
@@ -153,12 +170,11 @@ class _AddSupplierPageState extends State<AddSupplierPage> {
     return Scaffold(
       appBar: AppBar(
         title:
-            Text(widget.supplier == null ? 'Tambah Supplier' : 'Edit Supplier'),
+            Text(widget.supplier == null ? 'Tambah Supplier' : 'Ubah Supplier'),
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          // Nama
           TextField(
             controller: controllerName,
             decoration: const InputDecoration(
@@ -167,8 +183,6 @@ class _AddSupplierPageState extends State<AddSupplierPage> {
             ),
           ),
           const SizedBox(height: 16),
-
-          // Produk
           TextField(
             controller: controllerProduct,
             decoration: const InputDecoration(
@@ -177,8 +191,6 @@ class _AddSupplierPageState extends State<AddSupplierPage> {
             ),
           ),
           const SizedBox(height: 16),
-
-          // No. Telp
           TextField(
             controller: controllerTelp,
             decoration: const InputDecoration(
@@ -188,8 +200,6 @@ class _AddSupplierPageState extends State<AddSupplierPage> {
             keyboardType: TextInputType.phone,
           ),
           const SizedBox(height: 16),
-
-          // Jumlah Produk
           TextField(
             controller: controllerJumlah,
             decoration: const InputDecoration(
@@ -200,8 +210,6 @@ class _AddSupplierPageState extends State<AddSupplierPage> {
             onChanged: (_) => setState(() {}),
           ),
           const SizedBox(height: 16),
-
-          // Harga per Unit
           TextField(
             controller: controllerHarga,
             decoration: const InputDecoration(
@@ -213,8 +221,6 @@ class _AddSupplierPageState extends State<AddSupplierPage> {
             onChanged: (_) => setState(() {}),
           ),
           const SizedBox(height: 16),
-
-          // Field "Terjual" + perhitungan hanya saat Edit
           if (widget.supplier != null) ...[
             TextField(
               controller: controllerTerjual,
@@ -227,8 +233,6 @@ class _AddSupplierPageState extends State<AddSupplierPage> {
             ),
             const SizedBox(height: 16),
           ],
-
-          // Tombol Simpan
           ElevatedButton(
             onPressed: saveSupplier,
             style: ElevatedButton.styleFrom(
