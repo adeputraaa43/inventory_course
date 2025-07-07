@@ -44,7 +44,7 @@ class SourceProduct {
       Map result = jsonDecode(responseBody);
       String message = result['message'] ?? '';
       if (message == 'code') {
-        DInfo.toastError('Code already used');
+        DInfo.toastError('Kode barang sudah digunakan');
       }
       return result['success'];
     }
@@ -66,7 +66,7 @@ class SourceProduct {
       Map result = jsonDecode(responseBody);
       String message = result['message'] ?? '';
       if (message == 'code') {
-        DInfo.toastError('Code already used');
+        DInfo.toastError('Kode barang sudah digunakan');
       }
       return result['success'];
     }
