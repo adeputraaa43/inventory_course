@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:flutter/services.dart';
 import '../../../config/app_color.dart';
-import '../../../config/app_format.dart';
 import '../../../data/model/supplier.dart';
 import 'package:http/http.dart' as http;
 
@@ -54,42 +54,61 @@ class _AddSupplierPageState extends State<AddSupplierPage> {
     String harga = controllerHarga.text.trim();
     String terjual = controllerTerjual.text.trim();
 
-    if (name.isEmpty ||
-        product.isEmpty ||
-        telp.isEmpty ||
-        jumlah.isEmpty ||
-        harga.isEmpty) {
-      Get.snackbar('Error', 'Semua field wajib diisi');
-      return;
+    List<String> errors = [];
+
+    if (name.isEmpty) errors.add('Nama Supplier wajib diisi.');
+    if (product.isEmpty) errors.add('Produk Supplier wajib diisi.');
+    if (telp.isEmpty) {
+      errors.add('No. Telepon wajib diisi.');
+    } else if (!RegExp(r'^\d+$').hasMatch(telp)) {
+      errors.add('No. Telepon harus angka.');
     }
 
-    int jumlahInt = int.tryParse(jumlah) ?? 0;
-    double hargaD = double.tryParse(harga) ?? 0.0;
-    int terjualInt = int.tryParse(terjual) ?? 0;
+    if (jumlah.isEmpty) {
+      errors.add('Jumlah Produk wajib diisi.');
+    } else if (!RegExp(r'^\d+$').hasMatch(jumlah)) {
+      errors.add('Jumlah Produk harus angka.');
+    }
+
+    if (harga.isEmpty) {
+      errors.add('Harga per Unit wajib diisi.');
+    } else if (!RegExp(r'^\d+(\.\d+)?$').hasMatch(harga)) {
+      errors.add('Harga per Unit harus angka.');
+    }
 
     if (widget.supplier != null) {
       if (terjual.isEmpty) {
-        Get.snackbar('Error', 'Produk terjual wajib diisi');
-        return;
-      }
-      if (terjualInt > jumlahInt) {
-        await Get.dialog(
-          AlertDialog(
-            title: const Text('Gagal'),
-            content: const Text(
-                'Produk terjual tidak boleh lebih dari jumlah produk.'),
-            actions: [
-              TextButton(
-                onPressed: () => Get.back(),
-                child: const Text('OK'),
-              ),
-            ],
-          ),
-          barrierDismissible: false,
-        );
-        return;
+        errors.add('Produk Terjual wajib diisi.');
+      } else if (!RegExp(r'^\d+$').hasMatch(terjual)) {
+        errors.add('Produk Terjual harus angka.');
+      } else {
+        int jumlahInt = int.tryParse(jumlah) ?? 0;
+        int terjualInt = int.tryParse(terjual) ?? 0;
+        if (terjualInt > jumlahInt) {
+          errors.add('Produk Terjual tidak boleh lebih dari Jumlah Produk.');
+        }
       }
     }
+
+    if (errors.isNotEmpty) {
+      Get.defaultDialog(
+        title: 'Validasi Gagal',
+        titleStyle: const TextStyle(
+            color: Color(0xFF6200EE),
+            fontWeight: FontWeight.bold,
+            fontSize: 18),
+        content: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: errors.map((e) => Text("• $e")).toList(),
+        ),
+        textConfirm: 'OK',
+        confirmTextColor: Colors.white,
+        buttonColor: Color(0xFF6200EE),
+        onConfirm: () => Get.back(),
+      );
+      return;
+    }
+
     String url = widget.supplier == null
         ? "http://10.0.2.2/inventory_course/api_inventory_course/supplier/add.php"
         : "http://10.0.2.2/inventory_course/api_inventory_course/supplier/update.php";
@@ -101,6 +120,7 @@ class _AddSupplierPageState extends State<AddSupplierPage> {
       "jumlah_produk": jumlah,
       "harga": harga,
     };
+
     if (widget.supplier != null) {
       body["id_supplier"] = widget.supplier!.idSupplier.toString();
       body["produk_terjual"] = terjual;
@@ -114,13 +134,10 @@ class _AddSupplierPageState extends State<AddSupplierPage> {
             : "Yakin ingin mengupdate supplier?"),
         actions: [
           TextButton(
-            onPressed: () => Get.back(result: false),
-            child: const Text("Tidak"),
-          ),
+              onPressed: () => Get.back(result: false),
+              child: const Text("Tidak")),
           TextButton(
-            onPressed: () => Get.back(result: true),
-            child: const Text("Ya"),
-          ),
+              onPressed: () => Get.back(result: true), child: const Text("Ya")),
         ],
       ),
       barrierDismissible: false,
@@ -143,8 +160,8 @@ class _AddSupplierPageState extends State<AddSupplierPage> {
             actions: [
               TextButton(
                 onPressed: () {
-                  Get.back(); // close dialog
-                  Get.back(result: true); // return to previous page
+                  Get.back();
+                  Get.back(result: true);
                 },
                 child: const Text('OK'),
               ),
@@ -153,20 +170,29 @@ class _AddSupplierPageState extends State<AddSupplierPage> {
           barrierDismissible: false,
         );
       } else {
-        Get.snackbar('Gagal', data['message'] ?? 'Gagal memproses');
+        Get.defaultDialog(
+          title: 'Gagal',
+          content: Text(data['message'] ?? 'Gagal memproses'),
+          textConfirm: 'OK',
+          confirmTextColor: Colors.white,
+          buttonColor: Color(0xFF6200EE),
+          onConfirm: () => Get.back(),
+        );
       }
     } catch (e) {
-      Get.snackbar('Error', 'Terjadi kesalahan: $e');
+      Get.defaultDialog(
+        title: 'Error',
+        content: Text('Terjadi kesalahan: $e'),
+        textConfirm: 'OK',
+        confirmTextColor: Colors.white,
+        buttonColor: Color(0xFF6200EE),
+        onConfirm: () => Get.back(),
+      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    int j = int.tryParse(controllerJumlah.text) ?? 0;
-    int t = int.tryParse(controllerTerjual.text) ?? 0;
-    double h = double.tryParse(controllerHarga.text) ?? 0.0;
-    double bayar = t * h;
-
     return Scaffold(
       appBar: AppBar(
         title:
@@ -207,7 +233,6 @@ class _AddSupplierPageState extends State<AddSupplierPage> {
               border: OutlineInputBorder(),
             ),
             keyboardType: TextInputType.number,
-            onChanged: (_) => setState(() {}),
           ),
           const SizedBox(height: 16),
           TextField(
@@ -217,8 +242,7 @@ class _AddSupplierPageState extends State<AddSupplierPage> {
               border: OutlineInputBorder(),
               prefixText: 'Rp ',
             ),
-            keyboardType: TextInputType.number,
-            onChanged: (_) => setState(() {}),
+            keyboardType: TextInputType.numberWithOptions(decimal: true),
           ),
           const SizedBox(height: 16),
           if (widget.supplier != null) ...[
@@ -229,14 +253,13 @@ class _AddSupplierPageState extends State<AddSupplierPage> {
                 border: OutlineInputBorder(),
               ),
               keyboardType: TextInputType.number,
-              onChanged: (_) => setState(() {}),
             ),
             const SizedBox(height: 16),
           ],
           ElevatedButton(
             onPressed: saveSupplier,
             style: ElevatedButton.styleFrom(
-              primary: AppColor.primary,
+              primary: Color(0xFF6200EE),
               padding: const EdgeInsets.symmetric(vertical: 16),
             ),
             child: const Text('Simpan'),

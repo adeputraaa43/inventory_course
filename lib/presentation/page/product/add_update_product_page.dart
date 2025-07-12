@@ -2,6 +2,7 @@ import 'package:d_info/d_info.dart';
 import 'package:d_input/d_input.dart';
 import 'package:d_view/d_view.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import '../../../services/kategori_service.dart';
 import '../../../data/model/kategori.dart';
@@ -156,7 +157,13 @@ class _AddUpdateProductPageState extends State<AddUpdateProductPage> {
               controller: controllerPrice,
               hint: '2000000',
               title: 'Harga',
-              validator: (value) => value == '' ? 'Wajib diisi' : null,
+              validator: (value) {
+                if (value == '') return 'Wajib diisi';
+                if (!RegExp(r'^\d+$').hasMatch(value!)) {
+                  return 'Harga harus angka';
+                }
+                return null;
+              },
               isRequired: true,
               inputType: TextInputType.number,
             ),
@@ -165,7 +172,13 @@ class _AddUpdateProductPageState extends State<AddUpdateProductPage> {
               controller: controllerStock,
               hint: '50',
               title: 'Stok',
-              validator: (value) => value == '' ? 'Wajib diisi' : null,
+              validator: (value) {
+                if (value == '') return 'Wajib diisi';
+                if (!RegExp(r'^\d+$').hasMatch(value!)) {
+                  return 'Stok harus angka';
+                }
+                return null;
+              },
               isRequired: true,
               inputType: TextInputType.number,
             ),
