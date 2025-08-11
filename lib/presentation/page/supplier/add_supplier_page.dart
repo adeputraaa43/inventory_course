@@ -110,8 +110,8 @@ class _AddSupplierPageState extends State<AddSupplierPage> {
     }
 
     String url = widget.supplier == null
-        ? "http://10.0.2.2/inventory_course/api_inventory_course/supplier/add.php"
-        : "http://10.0.2.2/inventory_course/api_inventory_course/supplier/update.php";
+        ? "https://inventoryku.shop/api_inventory_course/supplier/add.php"
+        : "https://inventoryku.shop/api_inventory_course/supplier/update.php";
 
     Map<String, String> body = {
       "nama_supplier": name,

@@ -31,7 +31,7 @@ class _SupplierPageState extends State<SupplierPage> {
     setState(() => isLoading = true);
     try {
       final resp = await http.get(Uri.parse(
-        "http://10.0.2.2/inventory_course/api_inventory_course/supplier/get.php",
+        "https://inventoryku.shop/api_inventory_course/supplier/get.php",
       ));
       if (resp.statusCode == 200) {
         final data = json.decode(resp.body);
@@ -59,7 +59,7 @@ class _SupplierPageState extends State<SupplierPage> {
     try {
       final resp = await http.post(
         Uri.parse(
-            "http://10.0.2.2/inventory_course/api_inventory_course/supplier/delete.php"),
+            "https://inventoryku.shop/api_inventory_course/supplier/delete.php"),
         body: {'id_supplier': id},
       );
       final data = json.decode(resp.body);

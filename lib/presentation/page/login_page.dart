@@ -110,7 +110,7 @@ class _LoginPageState extends State<LoginPage> {
                         MediaQuery.of(context).size.height * 0.15,
                       ),
                       Text(
-                        'Inventory\nTester',
+                        'Warung\nDiza',
                         style: theme.textTheme.displaySmall!.copyWith(
                           color: textColor,
                           fontWeight: FontWeight.bold,
