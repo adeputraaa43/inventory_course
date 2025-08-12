@@ -23,7 +23,7 @@ class CHistory extends GetxController {
     update();
 
     List<History> newList = await SourceHistory.gets(page);
-    _list.value.addAll(newList);
+    _list.addAll(newList);
 
     if (newList.length < 10) _hasNext.value = false;
     _page.value = page + 1;
