@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:inventory_course/presentation/controller/c_user.dart';
-import 'package:printing/printing.dart'; // ✅ untuk print PDF
+import 'package:printing/printing.dart';
 import '../../../config/app_color.dart';
 import '../../../config/app_format.dart';
 import '../../../data/model/history.dart';
@@ -13,7 +13,7 @@ import '../../../data/model/history_rekap.dart';
 import '../../../data/source/source_history.dart';
 import '../../controller/c_history.dart';
 import 'detail_history_page.dart';
-import '../../../config/pdf_generator.dart'; // ✅ fungsi generate PDF
+import '../../../config/pdf_generator.dart';
 
 class HistoryPage extends StatefulWidget {
   const HistoryPage({Key? key}) : super(key: key);
@@ -96,7 +96,6 @@ class _HistoryPageState extends State<HistoryPage> {
     }
   }
 
-  // ✅ fungsi untuk generate dan print PDF
   void exportToPdf() async {
     final pdf = await PdfGenerator.generateHistoryPdf(cHistory.list);
     await Printing.layoutPdf(onLayout: (format) async => pdf.save());
@@ -116,7 +115,7 @@ class _HistoryPageState extends State<HistoryPage> {
         actions: [
           IconButton(
             icon: const Icon(Icons.picture_as_pdf),
-            onPressed: exportToPdf, // ✅ tombol export PDF
+            onPressed: exportToPdf,
           ),
         ],
       ),
